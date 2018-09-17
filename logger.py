@@ -9,8 +9,76 @@ import lxml.etree
 from multiprocessing import Queue
 from threading import Event, Lock, Thread
 
+import math
+import time
+import pyaudio
+import numpy as np
+from threading import Event, Lock, Thread
+
+import pygame
+
+pygame.init()
+size = width, height = 1920, 1080
+screen = pygame.display.set_mode(size)
+fillBlack = False
+def toggleScreen():
+    global fillBlack
+    fill = (255, 255, 255)
+    if fillBlack:
+        fill = (0, 0, 0)
+    fillBlack = not fillBlack
+    screen.fill(fill)
+    pygame.display.flip()
+
+PyAudio = pyaudio.PyAudio
+
+diameterAverage = 0
+diameterStdDev = 0
+diameterReadings = []
+frequency = 500
+bitrate = 8000
+
+playerReadyToClose = Event()
+playerReadyToClose.clear()
+
+def player():
+    p = PyAudio()
+    stream = p.open(format = pyaudio.paFloat32, 
+                    channels = 1, 
+                    rate = bitrate,
+                    output = True)
+
+    frame = 0
+    frameSeconds = 1.0 / bitrate
+    scale = bitrate / np.pi / 2.0
+    deltaAverage = 0
+    lastTime = time.time()
+    data = np.array([ 0 ]).astype(np.float32)
+    while not playerReadyToClose.is_set():
+        x = frequency * frame / scale
+        data[0] = math.sin(x)
+        stream.write(data.tobytes())
+        newTime = time.time()
+        deltaAverage = (deltaAverage * frame + (frameSeconds - (newTime - lastTime))) / (frame + 1)
+        if deltaAverage > 0:
+            time.sleep(deltaAverage)
+        lastTime = newTime
+        frame = frame + 1
+        
+        if frame % (bitrate * 5) is 0:
+            toggleScreen()
+
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+playerThread = Thread(target = player,
+                      name="player",
+                      args=[])
+
 def main(argv):
     ip = "127.0.0.1"
+    ip = "192.168.1.19"
     port = 4242
     
     try:
@@ -30,6 +98,7 @@ def main(argv):
     tracker = OpenGazeTracker(ip=ip, port=port)
     
     tracker.start_recording()
+    playerThread.start()
 
 class OpenGazeTracker:
 
@@ -310,6 +379,8 @@ class OpenGazeTracker:
     
     def _debug_print(self, msg):
         
+#        print('%s: %s\n' % \
+#            (datetime.datetime.now().strftime("%H:%M:%S.%f"), msg))
         if self._debug:
             self._debuglog.write('%s: %s\n' % \
                 (datetime.datetime.now().strftime("%H:%M:%S.%f"), msg))
@@ -339,6 +410,10 @@ class OpenGazeTracker:
         os.fsync(self._logfile.fileno())
     
     def _log_sample(self, sample):
+        global frequency
+        global diameterAverage
+        global diameterStdDev
+        global diameterReadings
         
         # Construct an empty line that has the same length as the log's
         # header (this was computed in __init__).
@@ -349,13 +424,30 @@ class OpenGazeTracker:
             if varname in self._logheader:
                 # Find the appropriate index in the line
                 line[self._logheader.index(varname)] = sample[varname]
-        left_diameter = -1
-        right_diameter = -1
+        # left_diameter = -1
+        # right_diameter = -1
+        # if sample["LPV"] == "1":
+        #     left_diameter = float(sample["LPD"]) * float(sample["LPS"])
+        # if sample["RPV"] == "1":
+        #     right_diameter = float(sample["RPD"]) * float(sample["RPS"])
+        # print((left_diameter, right_diameter))
+        diameter = 0
+        n = 0
         if sample["LPV"] == "1":
-            left_diameter = float(sample["LPD"]) * float(sample["LPS"])
+            diameter = diameter + float(sample["LPD"])
+            n = n + 1
         if sample["RPV"] == "1":
-            right_diameter = float(sample["RPD"]) * float(sample["RPS"])
-        print((left_diameter, right_diameter))
+            diameter = diameter + float(sample["RPD"])
+            n = n + 1
+        if n > 0:
+            diameter = diameter / n
+            if diameterAverage > 0:
+                frequency = (diameter - diameterAverage) / diameterStdDev * 20 + 500
+            elif len(diameterReadings) < 60 * 5:
+                diameterReadings.append(diameter)
+            else:
+                diameterAverage = np.average(diameterReadings)
+                diameterStdDev = np.std(diameterReadings)
         # print('\t'.join(line))
         # self._logfile.write('\t'.join(line) + '\n')
 
