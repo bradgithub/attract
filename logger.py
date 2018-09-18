@@ -16,6 +16,9 @@ import numpy as np
 from threading import Event, Lock, Thread
 
 import pygame
+import glob
+
+imageList = glob.glob("OASIS/images/*jpg") 
 
 pygame.init()
 size = width, height = 1920, 1080
@@ -27,7 +30,11 @@ def toggleScreen():
     if fillBlack:
         fill = (0, 0, 0)
     fillBlack = not fillBlack
-    screen.fill(fill)
+    # screen.fill(fill)
+    screen.fill((0, 0, 0))
+    image = pygame.image.load(np.random.choice(imageList))
+    image = pygame.transform.smoothscale(image, (1920, 1080))
+    screen.blit(image, (0,0))
     pygame.display.flip()
 
 PyAudio = pyaudio.PyAudio
