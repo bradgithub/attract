@@ -15,34 +15,6 @@ import pyaudio
 import numpy as np
 from threading import Event, Lock, Thread
 
-import pygame
-import glob
-
-imageLists = [
-    glob.glob(os.path.join("OASIS", "0", "*.jpg")),
-    glob.glob(os.path.join("OASIS", "1", "*.jpg"))
-]
-
-pygame.init()
-size = width, height = 1920, 1080
-screen = pygame.display.set_mode(size)
-fillBlack = False
-def toggleScreen():
-    global fillBlack
-    fill = (255, 255, 255)
-    if fillBlack:
-        fill = (0, 0, 0)
-    fillBlack = not fillBlack
-    # screen.fill(fill)
-    screen.fill((0, 0, 0))
-    imageClass = np.random.choice([ 0, 1 ])
-    imagePath = np.random.choice(imageLists[imageClass])
-    image = pygame.image.load(imagePath)
-    image = pygame.transform.smoothscale(image, (1920, 1080))
-    screen.blit(image, (0,0))
-    pygame.display.flip()
-    return imageClass
-
 PyAudio = pyaudio.PyAudio
 
 diameterAverage = 0
@@ -53,6 +25,37 @@ bitrate = 8000
 
 playerReadyToClose = Event()
 playerReadyToClose.clear()
+
+toggleScreen = None
+eventPump = None
+
+def initDisplay():
+    import pygame
+    import glob
+
+    imageLists = [
+        glob.glob(os.path.join("OASIS", "0", "*.jpg")),
+        glob.glob(os.path.join("OASIS", "1", "*.jpg"))
+    ]
+
+    size = width, height = 1920, 1080
+    screen = pygame.display.set_mode(size)
+    pygame.init()
+    def _toggleScreen():
+        screen.fill((0, 0, 0))
+        imageClass = np.random.choice([ 0, 1 ])
+        imagePath = np.random.choice(imageLists[imageClass])
+        image = pygame.image.load(imagePath)
+        image = pygame.transform.smoothscale(image, (1920, 1080))
+        screen.blit(image, (0,0))
+        pygame.display.flip()
+        return imageClass
+    def _eventPump():
+        pygame.event.pump()
+    global toggleScreen
+    global eventPump
+    toggleScreen = _toggleScreen
+    eventPump = _eventPump
 
 def player():
     p = PyAudio()
@@ -516,6 +519,7 @@ class OpenGazeTracker:
         # Reset the user-defined variable.
         self.user_data("0")
 
+        initDisplay()
         self._imageClass = toggleScreen()
     
     def calibrate(self):
@@ -706,12 +710,14 @@ class OpenGazeTracker:
             y = max(min(y, 1000), 0)
             self._xyPoints.append((x, y))
         if len(self._xyPoints) == 60 * 5:
-            try:
-                print(", ".join((self._imageClass, RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures())))
-            except Exception:
-                pass
+            features = RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures()
+            output = [ str(self._imageClass) ]
+            for feature in features:
+                output.append(str(feature))
+            print(", ".join(output))
             self._xyPoints = []
             self._imageClass = toggleScreen()
+        eventPump()
 
     def _parse_msg(self, xml):
         
