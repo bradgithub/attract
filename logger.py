@@ -18,7 +18,10 @@ from threading import Event, Lock, Thread
 import pygame
 import glob
 
-imageList = glob.glob("OASIS/images/*jpg") 
+imageLists = [
+    glob.glob(os.path.join([ "OASIS", "0", "*.jpg" ])),
+    glob.glob(os.path.join([ "OASIS", "1", "*.jpg" ]))
+]
 
 pygame.init()
 size = width, height = 1920, 1080
@@ -32,12 +35,13 @@ def toggleScreen():
     fillBlack = not fillBlack
     # screen.fill(fill)
     screen.fill((0, 0, 0))
-    imagePath = np.random.choice(imageList)
+    imageClass = np.random.choice([ 0, 1 ])
+    imagePath = np.random.choice(imageLists[imageClass])
     image = pygame.image.load(imagePath)
     image = pygame.transform.smoothscale(image, (1920, 1080))
     screen.blit(image, (0,0))
     pygame.display.flip()
-    return imagePath
+    return imageClass
 
 PyAudio = pyaudio.PyAudio
 
@@ -74,7 +78,7 @@ def player():
         lastTime = newTime
         frame = frame + 1
         
-        if frame % (bitrate * 5) is 0:
+        if frame % (bitrate * 5) == 0:
             toggleScreen()
 
     stream.stop_stream()
@@ -125,9 +129,10 @@ class RecurrenceQuantificationAnalysis:
             self._divergence,
             self._entropy,
             self._maxFixationTime,
-            self._maxFixationIndex,
             self._mostVisitedArea,
-            self._gazePathLength
+            self._gazePathLengthMean,
+            self._gazePathLengthStdDev,
+            self._centerOfRecurrenceMass
         )
         
     def _indexXyPoints(self,
@@ -144,6 +149,7 @@ class RecurrenceQuantificationAnalysis:
                              radius):
         i = 0
         radius2 = radius * radius
+        centerOfRecurrenceMass = 0
         indexedXyPoints.sort(key=lambda indexedXyPoint: indexedXyPoint[1])
         for indexa, xa, ya in indexedXyPoints:
             j = i + 1
@@ -155,10 +161,12 @@ class RecurrenceQuantificationAnalysis:
                     if yDistance >= -radius and yDistance <= radius:
                         if xDistance * xDistance + yDistance * yDistance <= radius2:
                             self._recurrencePoints.append([ indexa, indexb, xa, ya, xb, yb ])
+                            centerOfRecurrenceMass = centerOfRecurrenceMass + j - i
                 else:
                     break
                 j = j + 1
             i = i + 1
+        self._centerOfRecurrenceMass = float(centerOfRecurrenceMass) / (self._N - 1) / len(self._recurrencePoints)
 
     def _setRecurrenceLineFrequencies(self,
                                       minimumLineLength):
@@ -278,7 +286,7 @@ class RecurrenceQuantificationAnalysis:
         xCenter = None
         yCenter = None
         for index, x, y in indexedXyPoints:
-            if index is self._maxFixationIndex:
+            if index == self._maxFixationIndex:
                 xCenter = x
                 yCenter = y
                 break
@@ -293,16 +301,24 @@ class RecurrenceQuantificationAnalysis:
         
     def _calculateGazePathLength(self,
                                  xyPoints):
-        length = 0
+        lengthMean = None
+        lengthVariance = 0
         i = 1
         while i < self._N:
             xa, ya = xyPoints[i - 1]
             xb, yb = xyPoints[i]
             xDistance = xb - xa
             yDistance = yb - ya
-            length = length + np.sqrt(xDistance * xDistance + yDistance * yDistance)
+            length = np.sqrt(xDistance * xDistance + yDistance * yDistance)
+            if lengthMean is None:
+                lengthMean = length
+            else:
+                newLengthMean = lengthMean + (length - lengthMean) / i
+                lengthVariance = lengthVariance + (length - lengthMean) * (length - newLengthMean)
+                lengthMean = newLengthMean
             i = i + 1
-        self._gazePathLength = length
+        self._gazePathLengthMean = lengthMean
+        self._gazePathLengthStdDev = np.sqrt(lengthVariance / (i - 2))
         
 def main(argv):
     ip = "127.0.0.1"
@@ -500,6 +516,7 @@ class OpenGazeTracker:
         # Reset the user-defined variable.
         self.user_data("0")
 
+        self._imageClass = toggleScreen()
     
     def calibrate(self):
         
@@ -681,17 +698,20 @@ class OpenGazeTracker:
                 diameterStdDev = np.std(diameterReadings)
         # print('\t'.join(line))
         # self._logfile.write('\t'.join(line) + '\n')
-        
-        if len(self._xyPoints) is 60 * 5:
-            print((self._imagePath, RecurrenceQuantificationAnalysis(xyPoints, 10, 100, 2).getFeatures()))
+                    
+        if sample["BPOGV"] == "1":
+            x = int(float(sample["BPOGX"]) * 1000)
+            y = int(float(sample["BPOGY"]) * 1000)
+            x = max(min(x, 1000), 0)
+            y = max(min(y, 1000), 0)
+            self._xyPoints.append((x, y))
+        if len(self._xyPoints) == 60 * 5:
+            try:
+                print(", ".join((self._imageClass, RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures())))
+            except Exception:
+                pass
             self._xyPoints = []
-            self._imagePath = toggleScreen()
-            
-        else:
-            if sample["BPOGV"] == "1":
-                x = int(float(sample["BPOGX"]) * 1000)
-                y = int(float(sample["BPOGY"]) * 1000)
-                self._xyPoints.append((x, y))
+            self._imageClass = toggleScreen()
 
     def _parse_msg(self, xml):
         
