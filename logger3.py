@@ -33,6 +33,7 @@ imageClass = None
 toggleEvent = Event()
 screenReady = Event()
 saccadeEvent = Event()
+pauseEvent = Event()
 toggleSemaphore = Semaphore()
 toggleSemaphore.release()
 gazePointXY = None
@@ -354,6 +355,7 @@ def main(argv):
     white = pygame.Color(255, 255, 255, 255)
     red = pygame.Color(255, 0, 0, 128)
     green = pygame.Color(0, 255, 0, 128)
+    yellow = pygame.Color(0, 255, 255, 128)
     radius = int(min(height, width) * 0.05)
     
     while True:
@@ -375,18 +377,21 @@ def main(argv):
         toggleSemaphore.acquire()
         if not (gazePointXY is None):
             x, y = gazePointXY
-            toggleSemaphore.release()
             
             if x >= 0 and x <= 1 and y >= 0 and y <= 1:
                 x = int(x * width)
                 y = int(y * height)
-                if saccadeEvent.isSet():
-                    saccadeEvent.clear()
+                if pauseEvent.isSet():
+                    pygame.draw.circle(screen, yellow, (x, y), radius, 0)
+                    
+                elif saccadeEvent.isSet():
                     pygame.draw.circle(screen, green, (x, y), radius, 0)
                 
                 else:
                     pygame.draw.circle(screen, red, (x, y), radius, 0)            
                 pygame.draw.circle(screen, white, (x, y), radius, 2)
+                
+            toggleSemaphore.release()
         
         else:
             toggleSemaphore.release()
@@ -789,6 +794,11 @@ class OpenGazeTracker:
                         toggleSemaphore.acquire()
                         saccadeEvent.set()
                         toggleSemaphore.release()
+                    
+                    else:
+                        toggleSemaphore.acquire()
+                        saccadeEvent.clear()
+                        toggleSemaphore.release()
                         
                 self._xDeque.append(x)
                 self._yDeque.append(y)
@@ -798,15 +808,20 @@ class OpenGazeTracker:
                 
                 toggleSemaphore.acquire()           
                 gazePointXY = (x, y)
+                pauseEvent.clear()
                 toggleSemaphore.release()
                 
                 if x >= 0 and x <= 1 and y >= 0 and y <= 1:
                     x = int(x * screenWidth)
                     y = int(y * screenHeight)
                     self._xyPoints.append((x, y))
+            else:
+                toggleSemaphore.acquire()           
+                pauseEvent.set()
+                toggleSemaphore.release()
                 
             if len(self._xyPoints) == 60 * 5:
-                features = RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures()
+                features = RecurrenceQuantificationAnalysis(self._xyPoints, int(min(screenWidth, screenHeight) * 0.1), int(min(screenWidth, screenHeight) * 0.2), 2).getFeatures()
                 output = [ str(imageClass) ]
                 for feature in features:
                     output.append(str(feature))
