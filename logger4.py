@@ -443,6 +443,7 @@ class OpenGazeTracker:
         self._imagePath = ""
         self._xDeque = deque()
         self._yDeque = deque()
+        self._trialId = 0
         
         # DEBUG
         self._debug = debug
@@ -793,16 +794,21 @@ class OpenGazeTracker:
                         if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
                             self._xDeque.clear()
                             self._yDeque.clear()
-                            toggleSemaphore.acquire()
-                            saccadeEvent.set()
-                            toggleSemaphore.release()
+                            
+                    if len(self._xDeque) < 5:
+                        toggleSemaphore.acquire()
+                        saccadeEvent.set()
+                        toggleSemaphore.release()
                             
                     self._xDeque.append(x)
                     self._yDeque.append(y)
                         
                     x = int(x * screenWidth)
                     y = int(y * screenHeight)
-                    self._xyPoints.append((x, y))
+                    if False:
+                        self._xyPoints.append((x, y))
+                    else:
+                        self._xyPoints.append((imageClass, self._trialId, time.time(), x, y))
 
                     x = np.mean(self._xDeque)
                     y = np.mean(self._yDeque)
@@ -827,15 +833,31 @@ class OpenGazeTracker:
                 toggleSemaphore.release()
                 
             if len(self._xyPoints) == 60 * 10:
-                features = RecurrenceQuantificationAnalysis(self._xyPoints, int(min(screenWidth, screenHeight) * 0.1), int(min(screenWidth, screenHeight) * 0.2), 2).getFeatures()
-                output = [ str(imageClass) ]
-                for feature in features:
-                    output.append(str(feature))
-                output = ", ".join(output)
-                featureFile = open("data.csv", "a")
-                featureFile.write(output + "\n")
-                featureFile.close()
-                print(output)
+                if False:
+                    features = RecurrenceQuantificationAnalysis(self._xyPoints, int(min(screenWidth, screenHeight) * 0.1), int(min(screenWidth, screenHeight) * 0.2), 2).getFeatures()
+                    output = [ str(imageClass) ]
+                    for feature in features:
+                        output.append(str(feature))
+                    output = ", ".join(output)
+                    featureFile = open("data.csv", "a")
+                    featureFile.write(output + "\n")
+                    featureFile.close()
+                    print(output)
+                    
+                else:
+                    output = []
+                    for point in self._xyPoints:
+                        record = []
+                        for element in point:
+                            record.append(str(element))
+                        output.append(",".join(record))
+                    featureFile = open("data.csv", "a")
+                    featureFile.write("\n".join(output) + "\n")
+                    featureFile.close()
+                    print(self._trialId)
+                self._trialId = self._trialId + 1
+                        
+                    
                 self._xyPoints = []
 
                 toggleSemaphore.acquire()            
