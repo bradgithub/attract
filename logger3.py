@@ -780,7 +780,7 @@ class OpenGazeTracker:
                 x = (xa + xb) / 2.0
                 y = (ya + yb) / 2.0
                 
-                if len(self._xDeque) == 10:
+                if len(self._xDeque) == 3:
                     xMean = np.mean(self._xDeque)
                     xLim = np.std(self._xDeque) * 10
                     yMean = np.mean(self._yDeque)
