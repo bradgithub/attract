@@ -32,6 +32,7 @@ playerReadyToClose.clear()
 imageClass = None
 toggleEvent = Event()
 screenReady = Event()
+saccadeEvent = Event()
 toggleSemaphore = Semaphore()
 toggleSemaphore.release()
 gazePointXY = None
@@ -352,6 +353,7 @@ def main(argv):
     
     white = pygame.Color(255, 255, 255, 255)
     red = pygame.Color(255, 0, 0, 128)
+    green = pygame.Color(0, 255, 0, 128)
     radius = int(min(height, width) * 0.05)
     
     while True:
@@ -378,7 +380,12 @@ def main(argv):
             if x >= 0 and x <= 1 and y >= 0 and y <= 1:
                 x = int(x * width)
                 y = int(y * height)
-                pygame.draw.circle(screen, red, (x, y), radius, 0)            
+                if saccadeEvent.isSet():
+                    saccadeEvent.clear()
+                    pygame.draw.circle(screen, green, (x, y), radius, 0)
+                
+                else:
+                    pygame.draw.circle(screen, red, (x, y), radius, 0)            
                 pygame.draw.circle(screen, white, (x, y), radius, 2)
         
         else:
@@ -391,7 +398,7 @@ def main(argv):
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 print("exiting...")
                 sys.exit(0)
-        pygame.time.delay(50)
+        pygame.time.delay(100)
     
     print("exiting...")
     sys.exit(0)
@@ -767,7 +774,7 @@ class OpenGazeTracker:
                 x = (xa + xb) / 2.0
                 y = (ya + yb) / 2.0
                 
-                if len(self._xDeque) == 5:
+                if len(self._xDeque) == 10:
                     xMean = np.mean(self._xDeque)
                     xLim = np.std(self._xDeque) * 2
                     yMean = np.mean(self._yDeque)
@@ -779,6 +786,9 @@ class OpenGazeTracker:
                     if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
                         self._xDeque.clear()
                         self._yDeque.clear()
+                        toggleSemaphore.acquire()
+                        saccadeEvent.set()
+                        toggleSemaphore.release()
                         
                 self._xDeque.append(x)
                 self._yDeque.append(y)
@@ -786,7 +796,7 @@ class OpenGazeTracker:
                 x = np.mean(self._xDeque)
                 y = np.mean(self._yDeque)
                 
-                toggleSemaphore.acquire()            
+                toggleSemaphore.acquire()           
                 gazePointXY = (x, y)
                 toggleSemaphore.release()
                 
