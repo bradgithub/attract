@@ -9,14 +9,12 @@ import lxml.etree
 from multiprocessing import Queue
 from threading import Event, Lock, Thread
 
+import glob
 import math
 import time
 import pyaudio
 import numpy as np
 from threading import Event, Lock, Thread, Semaphore
-
-import cv2
-import glob
 
 PyAudio = pyaudio.PyAudio
 
@@ -29,22 +27,10 @@ bitrate = 8000
 playerReadyToClose = Event()
 playerReadyToClose.clear()
 
-toggleSemaphore = Semaphore()
 imageClass = None
-
-imageLists = [
-    glob.glob(os.path.join("OASIS", "0", "*.jpg")),
-    glob.glob(os.path.join("OASIS", "1", "*.jpg"))
-]
-cv2.namedWindow("a", cv2.WND_PROP_FULLSCREEN)
-cv2.setWindowProperty("a", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-def toggleScreen():
-    global imageClass
-    imageClass = np.random.choice([ 0, 1 ])
-    imagePath = np.random.choice(imageLists[imageClass])
-    image = cv2.imread(imagePath)
-    cv2.imshow("a", image)
-    cv2.waitKey(1000)
+toggleEvent = Event()
+toggleSemaphore = Semaphore()
+toggleSemaphore.release()
 
 def player():
     p = PyAudio()
@@ -335,9 +321,36 @@ def main(argv):
     
     tracker.start_recording()
     
+    global imageClass
+
+    imageLists = [
+        glob.glob(os.path.join("OASIS", "0", "*.jpg")),
+        glob.glob(os.path.join("OASIS", "1", "*.jpg"))
+    ]
+    
+    import pygame
+    
+    pygame.init()
+    size = width, height = 1920, 1080
+    screen = pygame.display.set_mode(size)
+    
     while True:
         toggleSemaphore.acquire()
-        toggleScreen()
+        
+        if toggleEvent.isSet():
+            imageClass = np.random.choice([ 0, 1 ])
+            imagePath = np.random.choice(imageLists[imageClass])
+            screen.fill((0, 0, 0))
+            image = pygame.image.load(imagePath)
+            image = pygame.transform.smoothscale(image, (width, height))
+            screen.blit(image, (0,0))
+            pygame.display.flip()
+            toggleEvent.clear()
+        
+        toggleSemaphore.release()
+        
+        pygame.event.clear()
+        pygame.time.delay(100)
     
     #playerThread.start()
 
@@ -513,7 +526,7 @@ class OpenGazeTracker:
         # Reset the user-defined variable.
         self.user_data("0")
 
-        toggleSemaphore.release()
+        toggleEvent.set()
     
     def calibrate(self):
         
@@ -709,6 +722,9 @@ class OpenGazeTracker:
                 output.append(str(feature))
             print(", ".join(output))
             self._xyPoints = []
+
+            toggleSemaphore.acquire()            
+            toggleEvent.set()
             toggleSemaphore.release()
 
     def _parse_msg(self, xml):
