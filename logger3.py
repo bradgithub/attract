@@ -776,43 +776,53 @@ class OpenGazeTracker:
             if sample["LPOGV"] == "1" and sample["RPOGV"] == "1":
                 xa, ya = float(sample["LPOGX"]), float(sample["LPOGY"])
                 xb, yb = float(sample["RPOGX"]), float(sample["RPOGY"])
-                
-                x = (xa + xb) / 2.0
-                y = (ya + yb) / 2.0
-                
-                if len(self._xDeque) == 3:
-                    xMean = np.mean(self._xDeque)
-                    xLim = np.std(self._xDeque) * 20
-                    yMean = np.mean(self._yDeque)
-                    yLim = np.std(self._yDeque) * 20
+
+                if xa >= 0 and xa <= 1 and ya >= 0 and ya <= 1 and xb >= 0 and xb <= 1 and yb >= 0 and yb <= 1:
+                    x = (xa + xb) / 2.0
+                    y = (ya + yb) / 2.0
                     
-                    self._xDeque.popleft()
-                    self._yDeque.popleft()
-                    
-                    if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
-                        self._xDeque.clear()
-                        self._yDeque.clear()
-                        toggleSemaphore.acquire()
-                        saccadeEvent.set()
-                        toggleSemaphore.release()
+                    if len(self._xDeque) == 5:
+                        xMean = np.mean(self._xDeque)
+                        xLim = np.std(self._xDeque) * 10
+                        yMean = np.mean(self._yDeque)
+                        yLim = np.std(self._yDeque) * 10
                         
-                self._xDeque.append(x)
-                self._yDeque.append(y)
-                    
-                x = np.mean(self._xDeque)
-                y = np.mean(self._yDeque)
-                
-                toggleSemaphore.acquire()           
-                gazePointXY = (x, y)
-                pauseEvent.clear()
-                toggleSemaphore.release()
-                
-                if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                        self._xDeque.popleft()
+                        self._yDeque.popleft()
+                        
+                        if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
+                            self._xDeque.clear()
+                            self._yDeque.clear()
+                            toggleSemaphore.acquire()
+                            saccadeEvent.set()
+                            toggleSemaphore.release()
+                            
+                    self._xDeque.append(x)
+                    self._yDeque.append(y)
+                        
                     x = int(x * screenWidth)
                     y = int(y * screenHeight)
                     self._xyPoints.append((x, y))
+
+                    x = np.mean(self._xDeque)
+                    y = np.mean(self._yDeque)
+                    
+                    toggleSemaphore.acquire()           
+                    gazePointXY = (x, y)
+                    pauseEvent.clear()
+                    toggleSemaphore.release()
+                    
+                else:
+                    toggleSemaphore.acquire()           
+                    self._xDeque.clear()
+                    self._yDeque.clear()
+                    pauseEvent.set()
+                    toggleSemaphore.release()
+                    
             else:
                 toggleSemaphore.acquire()           
+                self._xDeque.clear()
+                self._yDeque.clear()
                 pauseEvent.set()
                 toggleSemaphore.release()
                 
