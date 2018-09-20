@@ -388,11 +388,11 @@ def main(argv):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 print("exiting...")
-                os._exit(0)
+                sys.exit(0)
         pygame.time.delay(50)
     
     print("exiting...")
-    os._exit(0)
+    sys.exit(0)
     
     #playerThread.start()
 
@@ -542,10 +542,13 @@ class OpenGazeTracker:
         self._thread_shutdown_signal = 'KILL_ALL_HUMANS'
         # Start the threads.
         self._debug_print("Starting the logging thread.")
+        self._logthread.daemon = True
         self._logthread.start()
         self._debug_print("Starting the incoming thread.")
+        self._inthread.daemon = True
         self._inthread.start()
         self._debug_print("Starting the outgoing thread.")
+        self._outthread.daemon = True
         self._outthread.start()
         
         # SET UP LOGGING
@@ -753,8 +756,12 @@ class OpenGazeTracker:
         # self._logfile.write('\t'.join(line) + '\n')
         
         if screenReady.isSet():
-            if sample["BPOGV"] == "1":
-                x, y = float(sample["BPOGX"]), float(sample["BPOGY"])
+            if sample["LPOGV"] == "1" and sample["RPOGV"] == "1":
+                xa, ya = float(sample["LPOGX"]), float(sample["LPOGY"])
+                xb, yb = float(sample["RPOGX"]), float(sample["RPOGY"])
+                
+                x = (xa + xb) / 2.0
+                y = (ya + yb) / 2.0
                 
                 toggleSemaphore.acquire()            
                 gazePointXY = (x, y)
@@ -764,6 +771,7 @@ class OpenGazeTracker:
                     x = int(x * screenWidth)
                     y = int(y * screenHeight)
                     self._xyPoints.append((x, y))
+                
             if len(self._xyPoints) == 60 * 5:
                 features = RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures()
                 output = [ str(imageClass) ]
