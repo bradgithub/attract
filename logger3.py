@@ -386,6 +386,7 @@ def main(argv):
                     
                 elif saccadeEvent.isSet():
                     pygame.draw.circle(screen, green, (x, y), radius, 0)
+                    saccadeEvent.clear()
                 
                 else:
                     pygame.draw.circle(screen, red, (x, y), radius, 0)            
@@ -779,7 +780,7 @@ class OpenGazeTracker:
                 x = (xa + xb) / 2.0
                 y = (ya + yb) / 2.0
                 
-                if len(self._xDeque) == 5:
+                if len(self._xDeque) == 10:
                     xMean = np.mean(self._xDeque)
                     xLim = np.std(self._xDeque) * 10
                     yMean = np.mean(self._yDeque)
@@ -793,11 +794,6 @@ class OpenGazeTracker:
                         self._yDeque.clear()
                         toggleSemaphore.acquire()
                         saccadeEvent.set()
-                        toggleSemaphore.release()
-                    
-                    else:
-                        toggleSemaphore.acquire()
-                        saccadeEvent.clear()
                         toggleSemaphore.release()
                         
                 self._xDeque.append(x)
@@ -821,7 +817,7 @@ class OpenGazeTracker:
                 toggleSemaphore.release()
                 
             if len(self._xyPoints) == 60 * 5:
-                features = RecurrenceQuantificationAnalysis(self._xyPoints, int(min(screenWidth, screenHeight) * 0.1), int(min(screenWidth, screenHeight) * 0.2), 2).getFeatures()
+                features = RecurrenceQuantificationAnalysis(self._xyPoints, int(min(screenWidth, screenHeight) * 0.2), int(min(screenWidth, screenHeight) * 0.4), 2).getFeatures()
                 output = [ str(imageClass) ]
                 for feature in features:
                     output.append(str(feature))
