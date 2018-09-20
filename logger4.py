@@ -334,7 +334,7 @@ def main(argv):
     global screenHeight
 
     imageLists = [
-        glob.glob(os.path.join("images", "1_people", "*.jpg")),
+        glob.glob(os.path.join("images", "0_people", "*.jpg")),
         glob.glob(os.path.join("images", "1_people", "*.jpg"))
     ]
     
