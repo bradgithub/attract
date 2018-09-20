@@ -29,6 +29,7 @@ playerReadyToClose.clear()
 
 imageClass = None
 toggleEvent = Event()
+screenReady = Event()
 toggleSemaphore = Semaphore()
 toggleSemaphore.release()
 gazePointXY = None
@@ -382,6 +383,7 @@ def main(argv):
             toggleSemaphore.release()
             
         pygame.display.flip()
+        screenReady.set()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
@@ -749,33 +751,34 @@ class OpenGazeTracker:
                 diameterStdDev = np.std(diameterReadings)
         # print('\t'.join(line))
         # self._logfile.write('\t'.join(line) + '\n')
-                    
-        if sample["BPOGV"] == "1":
-            x, y = float(sample["BPOGX"]), float(sample["BPOGY"])
-            
-            toggleSemaphore.acquire()            
-            gazePointXY = (x, y)
-            toggleSemaphore.release()
-            
-            if x >= 0 and x <= 1 and y >= 0 and y <= 1:
-                x = int(x * screenWidth)
-                y = int(y * screenHeight)
-                self._xyPoints.append((x, y))
-        if len(self._xyPoints) == 60 * 5:
-            features = RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures()
-            output = [ str(imageClass) ]
-            for feature in features:
-                output.append(str(feature))
-            output = ", ".join(output)
-            featureFile = open("data.csv", "a")
-            featureFile.write(output + "\n")
-            featureFile.close()
-            print(output)
-            self._xyPoints = []
+        
+        if screenReady.isSet():
+            if sample["BPOGV"] == "1":
+                x, y = float(sample["BPOGX"]), float(sample["BPOGY"])
+                
+                toggleSemaphore.acquire()            
+                gazePointXY = (x, y)
+                toggleSemaphore.release()
+                
+                if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                    x = int(x * screenWidth)
+                    y = int(y * screenHeight)
+                    self._xyPoints.append((x, y))
+            if len(self._xyPoints) == 60 * 5:
+                features = RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures()
+                output = [ str(imageClass) ]
+                for feature in features:
+                    output.append(str(feature))
+                output = ", ".join(output)
+                featureFile = open("data.csv", "a")
+                featureFile.write(output + "\n")
+                featureFile.close()
+                print(output)
+                self._xyPoints = []
 
-            toggleSemaphore.acquire()            
-            toggleEvent.set()
-            toggleSemaphore.release()
+                toggleSemaphore.acquire()            
+                toggleEvent.set()
+                toggleSemaphore.release()
 
     def _parse_msg(self, xml):
         
