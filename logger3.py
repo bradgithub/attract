@@ -334,23 +334,29 @@ def main(argv):
     size = width, height = 1920, 1080
     screen = pygame.display.set_mode(size)
     
-    while True:
-        toggleSemaphore.acquire()
-        
-        if toggleEvent.isSet():
-            imageClass = np.random.choice([ 0, 1 ])
-            imagePath = np.random.choice(imageLists[imageClass])
-            screen.fill((0, 0, 0))
-            image = pygame.image.load(imagePath)
-            image = pygame.transform.smoothscale(image, (width, height))
-            screen.blit(image, (0,0))
-            pygame.display.flip()
-            toggleEvent.clear()
-        
-        toggleSemaphore.release()
-        
-        pygame.event.clear()
-        pygame.time.delay(100)
+    try:
+        while True:
+            toggleSemaphore.acquire()
+            
+            if toggleEvent.isSet():
+                imageClass = np.random.choice([ 0, 1 ])
+                imagePath = np.random.choice(imageLists[imageClass])
+                screen.fill((0, 0, 0))
+                image = pygame.image.load(imagePath)
+                image = pygame.transform.smoothscale(image, (width, height))
+                screen.blit(image, (0,0))
+                pygame.display.flip()
+                toggleEvent.clear()
+            
+            toggleSemaphore.release()
+            
+            pygame.event.clear()
+            pygame.time.delay(100)
+            
+    except:
+        pass
+    
+    os._exit(0)
     
     #playerThread.start()
 
@@ -720,7 +726,11 @@ class OpenGazeTracker:
             output = [ str(imageClass) ]
             for feature in features:
                 output.append(str(feature))
-            print(", ".join(output))
+            output = ", ".join(output)
+            featureFile = open("data.csv", "a")
+            featureFile.write(output + "\n")
+            featureFile.close()
+            print(output)
             self._xyPoints = []
 
             toggleSemaphore.acquire()            
