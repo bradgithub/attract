@@ -334,8 +334,8 @@ def main(argv):
     global screenHeight
 
     imageLists = [
-        glob.glob(os.path.join("OASIS", "0", "*.jpg")),
-        glob.glob(os.path.join("OASIS", "1", "*.jpg"))
+        glob.glob(os.path.join("images", "1_people", "*.jpg")),
+        glob.glob(os.path.join("images", "1_people", "*.jpg"))
     ]
     
     import pygame
