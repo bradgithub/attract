@@ -16,6 +16,8 @@ import pyaudio
 import numpy as np
 from threading import Event, Lock, Thread, Semaphore
 
+from collections import deque
+
 PyAudio = pyaudio.PyAudio
 
 diameterAverage = 0
@@ -426,6 +428,8 @@ class OpenGazeTracker:
         
         self._xyPoints = []
         self._imagePath = ""
+        self._xDeque = deque()
+        self._yDeque = deque()
         
         # DEBUG
         self._debug = debug
@@ -762,6 +766,25 @@ class OpenGazeTracker:
                 
                 x = (xa + xb) / 2.0
                 y = (ya + yb) / 2.0
+                
+                if len(self._xDeque) == 5:
+                    xMean = np.mean(self._xDeque)
+                    xLim = np.std(self._xDeque) * 2
+                    yMean = np.mean(self._yDeque)
+                    yLim = np.std(self._yDeque) * 2
+                    
+                    self._xDeque.popleft()
+                    self._yDeque.popleft()
+                    
+                    if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
+                        self._xDeque.clear()
+                        self._yDeque.clear()
+                        
+                self._xDeque.append(x)
+                self._yDeque.append(y)
+                    
+                x = np.mean(self._xDeque)
+                y = np.mean(self._yDeque)
                 
                 toggleSemaphore.acquire()            
                 gazePointXY = (x, y)
