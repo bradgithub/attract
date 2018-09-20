@@ -782,9 +782,9 @@ class OpenGazeTracker:
                 
                 if len(self._xDeque) == 3:
                     xMean = np.mean(self._xDeque)
-                    xLim = np.std(self._xDeque) * 10
+                    xLim = np.std(self._xDeque) * 20
                     yMean = np.mean(self._yDeque)
-                    yLim = np.std(self._yDeque) * 10
+                    yLim = np.std(self._yDeque) * 20
                     
                     self._xDeque.popleft()
                     self._yDeque.popleft()
