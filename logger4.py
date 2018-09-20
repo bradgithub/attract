@@ -802,20 +802,21 @@ class OpenGazeTracker:
                             self._xDeque.clear()
                             self._yDeque.clear()
                             
+                    self._xDeque.append(x)
+                    self._yDeque.append(y)
+                        
                     if len(self._xDeque) < 5:
                         toggleSemaphore.acquire()
                         saccadeEvent.set()
                         toggleSemaphore.release()
                             
-                    self._xDeque.append(x)
-                    self._yDeque.append(y)
-                        
                     x = int(x * screenWidth)
                     y = int(y * screenHeight)
                     if False:
                         self._xyPoints.append((x, y))
                     else:
-                        self._xyPoints.append((imageClass, self._trialId, time.time(), x, y, pxa, pya, pxb, pyb))
+                        self._xyPoints.append((imageClass, self._trialId, time.time(), x, y))
+                        #self._xyPoints.append((imageClass, self._trialId, time.time(), x, y, pxa, pya, pxb, pyb))
 
                     x = np.mean(self._xDeque)
                     y = np.mean(self._yDeque)
