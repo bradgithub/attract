@@ -31,6 +31,9 @@ imageClass = None
 toggleEvent = Event()
 toggleSemaphore = Semaphore()
 toggleSemaphore.release()
+gazePointXY = None
+screenWidth = None
+screenHeight = None
 
 def player():
     p = PyAudio()
@@ -322,6 +325,8 @@ def main(argv):
     tracker.start_recording()
     
     global imageClass
+    global screenWidth
+    global screenHeight
 
     imageLists = [
         glob.glob(os.path.join("OASIS", "0", "*.jpg")),
@@ -331,32 +336,61 @@ def main(argv):
     import pygame
     
     pygame.init()
-    size = width, height = 1920, 1080
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    height = screen.get_height()
+    width = screen.get_width()
+    screenWidth = width
+    screenHeight = height
+
+    imageClass = np.random.choice([ 0, 1 ])
+    imagePath = np.random.choice(imageLists[imageClass])
+    image = pygame.image.load(imagePath)
+    image = pygame.transform.smoothscale(image, (width, height))
     
-    try:
-        while True:
-            toggleSemaphore.acquire()
-            
-            if toggleEvent.isSet():
-                imageClass = np.random.choice([ 0, 1 ])
-                imagePath = np.random.choice(imageLists[imageClass])
-                screen.fill((0, 0, 0))
-                image = pygame.image.load(imagePath)
-                image = pygame.transform.smoothscale(image, (width, height))
-                screen.blit(image, (0,0))
-                pygame.display.flip()
-                toggleEvent.clear()
-            
+    white = pygame.Color(255, 255, 255, 255)
+    red = pygame.Color(255, 0, 0, 128)
+    radius = int(min(height, width) * 0.01)
+    
+    while True:
+        toggleSemaphore.acquire()
+        
+        if toggleEvent.isSet():
+            toggleEvent.clear()
             toggleSemaphore.release()
             
-            pygame.event.clear()
-            pygame.time.delay(100)
+            imageClass = np.random.choice([ 0, 1 ])
+            imagePath = np.random.choice(imageLists[imageClass])
+            image = pygame.image.load(imagePath)
+            image = pygame.transform.smoothscale(image, (width, height))
+        
+        else:
+            toggleSemaphore.release()
+        
+        screen.blit(image, (0,0))
+        toggleSemaphore.acquire()
+        if not (gazePointXY is None):
+            x, y = gazePointXY
+            toggleSemaphore.release()
             
-    except:
-        pass
+            if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                x = int(x * width)
+                y = int(y * height)
+                pygame.draw.circle(screen, red, (x, y), radius, 0)            
+                pygame.draw.circle(screen, white, (x, y), radius, 2)
+        
+        else:
+            toggleSemaphore.release()
+            
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                print("exiting...")
+                sys.exit(0)
+        pygame.time.delay(100)
     
-    os._exit(0)
+    print("exiting...")
+    sys.exit(0)
     
     #playerThread.start()
 
@@ -678,6 +712,7 @@ class OpenGazeTracker:
         global diameterAverage
         global diameterStdDev
         global diameterReadings
+        global gazePointXY
         
         # Construct an empty line that has the same length as the log's
         # header (this was computed in __init__).
@@ -716,11 +751,16 @@ class OpenGazeTracker:
         # self._logfile.write('\t'.join(line) + '\n')
                     
         if sample["BPOGV"] == "1":
-            x = int(float(sample["BPOGX"]) * 1000)
-            y = int(float(sample["BPOGY"]) * 1000)
-            x = max(min(x, 1000), 0)
-            y = max(min(y, 1000), 0)
-            self._xyPoints.append((x, y))
+            x, y = float(sample["BPOGX"]), float(sample["BPOGY"])
+            
+            toggleSemaphore.acquire()            
+            gazePointXY = (x, y)
+            toggleSemaphore.release()
+            
+            if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                x = int(x * screenWidth)
+                y = int(y * screenHeight)
+                self._xyPoints.append((x, y))
         if len(self._xyPoints) == 60 * 5:
             features = RecurrenceQuantificationAnalysis(self._xyPoints, 10, 100, 2).getFeatures()
             output = [ str(imageClass) ]
