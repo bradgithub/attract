@@ -350,7 +350,7 @@ def main(argv):
     
     white = pygame.Color(255, 255, 255, 255)
     red = pygame.Color(255, 0, 0, 128)
-    radius = int(min(height, width) * 0.01)
+    radius = int(min(height, width) * 0.05)
     
     while True:
         toggleSemaphore.acquire()
@@ -388,11 +388,11 @@ def main(argv):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 print("exiting...")
-                sys.exit(0)
-        pygame.time.delay(100)
+                os._exit(0)
+        pygame.time.delay(50)
     
     print("exiting...")
-    sys.exit(0)
+    os._exit(0)
     
     #playerThread.start()
 
