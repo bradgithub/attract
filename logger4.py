@@ -398,7 +398,11 @@ def main(argv):
             toggleSemaphore.release()
             
         pygame.display.flip()
-        screenReady.set()
+
+        toggleSemaphore.acquire()
+        if not toggleEvent.isSet():
+            screenReady.set()
+        toggleSemaphore.release()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
@@ -774,9 +778,12 @@ class OpenGazeTracker:
         # self._logfile.write('\t'.join(line) + '\n')
         
         if screenReady.isSet():
-            if sample["LPOGV"] == "1" and sample["RPOGV"] == "1":
+            if sample["LPOGV"] == "1" and sample["RPOGV"] == "1" and sample["LPV"] == "1" and sample["RPV"] == "1":
                 xa, ya = float(sample["LPOGX"]), float(sample["LPOGY"])
                 xb, yb = float(sample["RPOGX"]), float(sample["RPOGY"])
+                
+                pxa, pya = float(sample["LPCX"]), float(sample["LPCY"])
+                pxb, pyb = float(sample["RPCX"]), float(sample["RPCY"])
 
                 if xa >= 0 and xa <= 1 and ya >= 0 and ya <= 1 and xb >= 0 and xb <= 1 and yb >= 0 and yb <= 1:
                     x = (xa + xb) / 2.0
@@ -808,7 +815,7 @@ class OpenGazeTracker:
                     if False:
                         self._xyPoints.append((x, y))
                     else:
-                        self._xyPoints.append((imageClass, self._trialId, time.time(), x, y))
+                        self._xyPoints.append((imageClass, self._trialId, time.time(), x, y, pxa, pya, pxb, pyb))
 
                     x = np.mean(self._xDeque)
                     y = np.mean(self._yDeque)
@@ -855,12 +862,13 @@ class OpenGazeTracker:
                     featureFile.write("\n".join(output) + "\n")
                     featureFile.close()
                     print(self._trialId)
+                    
                 self._trialId = self._trialId + 1
-                        
                     
                 self._xyPoints = []
 
-                toggleSemaphore.acquire()            
+                toggleSemaphore.acquire()
+                screenReady.clear()
                 toggleEvent.set()
                 toggleSemaphore.release()
 
