@@ -52,7 +52,7 @@ def getImageUrls(pixabayQueryString):
     page = json.load(page)
     hits = int(page["totalHits"])
     print(hits)
-    pages = np.arange(math.ceil(hits / 20.0)) + 1
+    pages = np.arange(int(hits / 20.0)) + 1
     np.random.shuffle(pages)
     print(pages)
     urls = []
