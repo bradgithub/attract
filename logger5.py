@@ -50,6 +50,8 @@ toggleEvent = Event()
 screenReady = Event()
 saccadeEvent = Event()
 pauseEvent = Event()
+drawGazePointEvent = Event()
+drawGazePointEvent.set()
 toggleSemaphore = Semaphore()
 toggleSemaphore.release()
 gazePointXY = None
@@ -442,7 +444,7 @@ def main(argv):
     white = pygame.Color(255, 255, 255, 255)
     red = pygame.Color(255, 0, 0, 128)
     green = pygame.Color(0, 255, 0, 128)
-    yellow = pygame.Color(0, 255, 255, 128)
+    yellow = pygame.Color(255, 255, 0, 128)
     radius = int(min(height, width) * 0.05)
     
     while True:
@@ -462,22 +464,22 @@ def main(argv):
         
         screen.blit(image, (0,0))
         toggleSemaphore.acquire()
-        if not (gazePointXY is None):
+        if not (gazePointXY is None) and drawGazePointEvent.isSet():
             x, y = gazePointXY
             
             if x >= 0 and x <= 1 and y >= 0 and y <= 1:
                 x = int(x * width)
                 y = int(y * height)
                 if pauseEvent.isSet():
-                    pygame.draw.circle(screen, yellow, (x, y), radius, 0)
+                    pygame.draw.circle(screen, yellow, (x, y), radius, 3)
                     
                 elif saccadeEvent.isSet():
-                    pygame.draw.circle(screen, green, (x, y), radius, 0)
+                    pygame.draw.circle(screen, green, (x, y), radius, 3)
                     saccadeEvent.clear()
                 
                 else:
-                    pygame.draw.circle(screen, red, (x, y), radius, 0)            
-                pygame.draw.circle(screen, white, (x, y), radius, 2)
+                    pygame.draw.circle(screen, red, (x, y), radius, 3)            
+                #pygame.draw.circle(screen, white, (x, y), radius, 2)
                 
             toggleSemaphore.release()
         
@@ -492,9 +494,23 @@ def main(argv):
         toggleSemaphore.release()
         
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    print("exiting...")
+                    sys.exit(0)
+                    
+                elif event.key == pygame.K_SPACE:
+                    toggleSemaphore.acquire()
+                    if drawGazePointEvent.isSet():
+                        drawGazePointEvent.clear()
+                    else:
+                        drawGazePointEvent.set()
+                    toggleSemaphore.release()
+                    
+            elif event.type == pygame.QUIT:
                 print("exiting...")
                 sys.exit(0)
+
         pygame.time.delay(100)
     
     print("exiting...")
