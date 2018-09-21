@@ -40,12 +40,7 @@ trainingDataFile = askopenfile(title="Open training data file",
 saveDataFilename = asksaveasfilename(title="Save response data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
-
-root.deiconify()
-root.lift()
 root.focus_force()
-root.withdraw()
-
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
 print(positiveQueryString)
