@@ -58,7 +58,7 @@ def getImageUrls(pixabayQueryString):
     urls = []
     count = 0
     for i in pages:
-        url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(positiveQueryString), i)
+        url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(pixabayQueryString), i)
         try:
             page = urllib.urlopen(url)
             page = json.load(page)
