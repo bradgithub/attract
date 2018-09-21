@@ -28,19 +28,27 @@ import io
 import json
 import math
 
+import tkinter
 from Tkinter import Tk
 from tkinter.filedialog import askopenfile, asksaveasfilename
 import tkSimpleDialog
 
 root = Tk()
+topLevel = tkinter.Toplevel(root)
 root.withdraw()
 
+topLevel.grab_set()
 trainingDataFile = askopenfile(title="Open training data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
+
+topLevel.grab_set()
 saveDataFilename = asksaveasfilename(title="Save response data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
+
+topLevel.grab_set()
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
-root.focus_force()
+
+topLevel.grab_set()
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
 print(positiveQueryString)
