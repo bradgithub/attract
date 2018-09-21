@@ -54,14 +54,21 @@ def getImageUrls(pixabayQueryString):
     print(hits)
     pages = np.arange(math.ceil(hits / 20.0)) + 1
     np.random.shuffle(pages)
-    pages = pages[0:6]
     print(pages)
     urls = []
+    count = 0
     for i in pages:
-        page = urllib.urlopen("https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(positiveQueryString), i))
-        page = json.load(page)
-        for hit in page["hits"]:
-            urls.append(hit["largeImageURL"])
+        url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(positiveQueryString), i)
+        try:
+            page = urllib.urlopen()
+            page = json.load(page)
+            for hit in page["hits"]:
+                urls.append(hit["largeImageURL"])
+            count = count + 1
+        except Exception:
+            print("could not load " + url)
+        if count == 6:
+            break
     np.random.shuffle(urls)
     print(urls[0:60])
     return urls[0:60]
