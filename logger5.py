@@ -334,8 +334,8 @@ for row, record in enumerate(reader):
         elif record[0] == "0":
             negatives.append(lastRecord)
         
-print(len(positives) + " positive examples")
-print(len(negatives) + " negative examples")
+print(str(len(positives)) + " positive examples")
+print(str(len(negatives)) + " negative examples")
 
 recurrenceRadius = int(1080 * 0.1)
 mostVisitedAreaRadius = recurrenceRadius * 2
