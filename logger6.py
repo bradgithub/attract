@@ -492,15 +492,12 @@ def main(argv):
     yellow = pygame.Color(255, 255, 0, 128)
     radius = int(min(height, width) * 0.05)
     
-    while True:
-        image = None
+    image = None
     
+    while True:
         toggleSemaphore.acquire()
         
         if toggleEvent.isSet():
-            toggleEvent.clear()
-            toggleSemaphore.release()
-            
             imageClass = np.random.choice([ 0, 1 ])
             if len(imageUrls[imageClass]) == 0:
                 imagePath = np.random.choice(imageLists[imageClass])
@@ -520,13 +517,10 @@ def main(argv):
                     images[imageClass][imageUrl] = image
                 else:
                     image = images[imageClass][imageUrl]
-        
-        else:
-            toggleSemaphore.release()
-        
+                    
         if not (image is None):
             screen.blit(image, (0,0))
-        toggleSemaphore.acquire()
+            
         if not (gazePointXY is None) and drawGazePointEvent.isSet():
             x, y = gazePointXY
             
@@ -543,18 +537,11 @@ def main(argv):
                 else:
                     pygame.draw.circle(screen, red, (x, y), radius, 3)            
                 #pygame.draw.circle(screen, white, (x, y), radius, 2)
-                
-            toggleSemaphore.release()
-        
-        else:
-            toggleSemaphore.release()
             
         pygame.display.flip()
 
-        toggleSemaphore.acquire()
-        if not toggleEvent.isSet():
-            screenReady.set()
-        toggleSemaphore.release()
+        toggleEvent.clear()
+        screenReady.set()
         
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -563,17 +550,17 @@ def main(argv):
                     sys.exit(0)
                     
                 elif event.key == pygame.K_RETURN:
-                    toggleSemaphore.acquire()
                     if drawGazePointEvent.isSet():
                         drawGazePointEvent.clear()
                     else:
                         drawGazePointEvent.set()
-                    toggleSemaphore.release()
                     
             elif event.type == pygame.QUIT:
                 print("exiting...")
                 sys.exit(0)
 
+        toggleSemaphore.release()
+        
         pygame.time.delay(100)
     
     print("exiting...")
@@ -759,7 +746,9 @@ class OpenGazeTracker:
         # Reset the user-defined variable.
         self.user_data("0")
 
+        toggleSemaphore.acquire()
         toggleEvent.set()
+        toggleSemaphore.release()
     
     def calibrate(self):
         
