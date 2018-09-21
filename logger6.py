@@ -40,13 +40,18 @@ trainingDataFile = askopenfile(title="Open training data file",
 saveDataFilename = asksaveasfilename(title="Save response data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
+
+root.deiconify()
+root.lift()
+root.focus_force()
+
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
 print(positiveQueryString)
 print(negativeQueryString)
 
 def getImageUrls(pixabayQueryString):
-    url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false" % urllib.quote(pixabayQueryString)
+    url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=true" % urllib.quote(pixabayQueryString)
     print(url)
     page = urllib.urlopen(url)
     page = json.load(page)
@@ -58,7 +63,7 @@ def getImageUrls(pixabayQueryString):
     urls = []
     count = 0
     for i in pages:
-        url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(pixabayQueryString), i)
+        url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=true&page=%i" % (urllib.quote(pixabayQueryString), i)
         try:
             page = urllib.urlopen(url)
             page = json.load(page)
