@@ -35,28 +35,17 @@ import tkSimpleDialog
 
 root = Tk()
 root.withdraw()
+
 trainingDataFile = askopenfile(title="Open training data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
-root.destroy()
 
-root = Tk()
-root.withdraw()
 saveDataFilename = asksaveasfilename(title="Save response data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
-root.destroy()
 
-root = Tk()
-root.grab_set()
-root.lift()
-root.withdraw()
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
-root.destroy()
 
-root = Tk()
-root.grab_set()
-root.lift()
-root.withdraw()
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
+
 root.destroy()
 
 print(positiveQueryString)
