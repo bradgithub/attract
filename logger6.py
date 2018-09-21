@@ -46,11 +46,15 @@ saveDataFilename = asksaveasfilename(title="Save response data file",
 root.destroy()
 
 root = Tk()
+root.grab_set()
+root.lift()
 root.withdraw()
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
 root.destroy()
 
 root = Tk()
+root.grab_set()
+root.lift()
 root.withdraw()
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 root.destroy()
