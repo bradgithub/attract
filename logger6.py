@@ -60,7 +60,7 @@ def getImageUrls(pixabayQueryString):
     for i in pages:
         url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(positiveQueryString), i)
         try:
-            page = urllib.urlopen()
+            page = urllib.urlopen(url)
             page = json.load(page)
             for hit in page["hits"]:
                 urls.append(hit["largeImageURL"])
