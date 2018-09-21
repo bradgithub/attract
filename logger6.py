@@ -36,20 +36,23 @@ import tkSimpleDialog
 root = Tk()
 root.withdraw()
 topLevel = tkinter.Toplevel(root)
-topLevel.withdraw()
 
 topLevel.grab_set()
+topLevel.withdraw()
 trainingDataFile = askopenfile(title="Open training data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
 
 topLevel.grab_set()
+topLevel.withdraw()
 saveDataFilename = asksaveasfilename(title="Save response data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
 
 topLevel.grab_set()
+topLevel.withdraw()
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
 
 topLevel.grab_set()
+topLevel.withdraw()
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
 print(positiveQueryString)
