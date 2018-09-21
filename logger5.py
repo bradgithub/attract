@@ -391,7 +391,7 @@ def main(argv):
     
     import pygame
     
-    pygame.mixer.init(Fs, -16, 0)   # mono, 16-bit
+    pygame.mixer.init(Fs, -16, 2)   # stereo, 16-bit
     pygame.init()
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     height = screen.get_height()
@@ -399,25 +399,27 @@ def main(argv):
     screenWidth = width
     screenHeight = height
 
-    length = Fs * 1.001   # 1.5 seconds
-    freq = 440.0
-    amp = 16.0
-    tmp = []
-    for t in range(int(length)):
-        v= amp * np.sin(t*freq/Fs*2*math.pi) 
-        tmp.append(v)
+    Fs = 11025
+    length = int(Fs * 2.00)   # 1.5 seconds
+    tmp = np.zeros((length, 2), dtype = np.int16)
+    freq = 440.00
+    amp = 4096.0
+    i = 0
+    while i < length:
+        tmp[i][0] = amp * np.sin(i*freq/Fs*2*math.pi)
+        tmp[i][1] = tmp[i][0]
+        i = i + 1
 
-    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(np.array(tmp))))
+    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(tmp)))
 
-    length = Fs * 1.001   # 1.5 seconds
-    freq = 440.0 * (5.0/4.0)
-    amp = 16.0
-    tmp = []
-    for t in range(int(length)):
-        v= amp * np.sin(t*freq/Fs*2*math.pi) 
-        tmp.append(v)
+    freq = 523.25
+    i = 0
+    while i < length:
+        tmp[i][0] = amp * np.sin(i*freq/Fs*2*math.pi)
+        tmp[i][1] = tmp[i][0]
+        i = i + 1
 
-    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(np.array(tmp))))
+    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(tmp)))
 
     imageClass = np.random.choice([ 0, 1 ])
     imagePath = np.random.choice(imageLists[imageClass])
