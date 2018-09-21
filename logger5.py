@@ -391,6 +391,7 @@ def main(argv):
     
     import pygame
     
+    Fs = 11025
     pygame.mixer.init(Fs, -16, 2)   # stereo, 16-bit
     pygame.init()
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -399,7 +400,6 @@ def main(argv):
     screenWidth = width
     screenHeight = height
 
-    Fs = 11025
     length = int(Fs * 2.00)   # 1.5 seconds
     tmp = np.zeros((length, 2), dtype = np.int16)
     freq = 440.00
