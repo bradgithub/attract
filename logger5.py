@@ -407,17 +407,17 @@ def main(argv):
         v= amp * np.sin(t*freq/Fs*2*math.pi) 
         tmp.append(v)
 
-    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(tmp)))
+    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(np.array(tmp))))
 
     length = Fs * 1.001   # 1.5 seconds
     freq = 440.0 * (5.0/4.0)
     amp = 16.0
     tmp = []
     for t in range(int(length)):
-        v= amp * numpy.sin(t*freq/Fs*2*numpy.pi) 
+        v= amp * np.sin(t*freq/Fs*2*math.pi) 
         tmp.append(v)
 
-    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(tmp)))
+    sounds.append(pygame.sndarray.make_sound(pygame.sndarray.array(np.array(tmp))))
 
     imageClass = np.random.choice([ 0, 1 ])
     imagePath = np.random.choice(imageLists[imageClass])
