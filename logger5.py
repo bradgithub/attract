@@ -24,7 +24,7 @@ import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 
 from tkinter import Tk
-from tkinter.filedialog import *
+from tkinter.filedialog import askopenfile, asksaveasfilename
 
 root = Tk()
 root.withdraw()
