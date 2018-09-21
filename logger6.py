@@ -511,6 +511,13 @@ def main(argv):
         toggleSemaphore.acquire()
         
         if toggleEvent.isSet():
+            toggleEvent.clear()
+            screenReady.clear()
+            toggleSemaphore.release()
+
+            screen.fill((0, 0, 0))
+            pygame.display.flip()
+
             imageClass = np.random.choice([ 0, 1 ])
             if len(imageUrls[imageClass]) == 0:
                 imagePath = np.random.choice(imageLists[imageClass])
@@ -531,6 +538,10 @@ def main(argv):
                 else:
                     image = images[imageClass][imageUrl]
                     
+        else:
+            toggleSemaphore.release()
+                    
+        toggleSemaphore.acquire()
         if not (image is None):
             screen.blit(image, (0,0))
             
