@@ -34,23 +34,22 @@ from tkinter.filedialog import askopenfile, asksaveasfilename
 import tkSimpleDialog
 
 root = Tk()
-topLevel = tkinter.Toplevel(root)
 
-topLevel.grab_set()
+root.grab_set()
 root.withdraw()
 trainingDataFile = askopenfile(title="Open training data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
 
-topLevel.grab_set()
+root.grab_set()
 root.withdraw()
 saveDataFilename = asksaveasfilename(title="Save response data file",
                                filetypes=(("CSV files","*.csv"),("all files","*.*")))
 
-topLevel.grab_set()
+root.grab_set()
 root.withdraw()
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
 
-topLevel.grab_set()
+root.grab_set()
 root.withdraw()
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
@@ -86,11 +85,11 @@ def getImageUrls(pixabayQueryString):
     return urls[0:60]
 
 positiveImageUrls = []
-if not (positiveQueryString == ''):
+if not (positiveQueryString is None or positiveQueryString == ''):
     positiveImageUrls = getImageUrls(positiveQueryString)
 
 negativeImageUrls = []
-if not (negativeQueryString == ''):
+if not (negativeQueryString is None or negativeQueryString == ''):
     negativeImageUrls = getImageUrls(negativeQueryString)
 
 imageUrls = [
