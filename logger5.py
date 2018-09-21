@@ -23,6 +23,17 @@ import random
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 
+from tkinter import tk
+from tkinter.filedialog import *
+
+root = tk.Tk()
+root.withdraw()
+
+trainingDataFile = askopenfile(title="Open training data file",
+                               filetypes=(("CSV files","*.csv"),("all files","*.*")))
+saveDataFilename = asksaveasfilename(title="Save response data file",
+                               filetypes=(("CSV files","*.csv"),("all files","*.*")))
+
 PyAudio = pyaudio.PyAudio
 
 diameterAverage = 0
@@ -310,49 +321,51 @@ class RecurrenceQuantificationAnalysis:
             i = i + 1
         self._gazePathLengthMean = lengthMean
         self._gazePathLengthStdDev = np.sqrt(lengthVariance / (i - 2))
-        
-reader = csv.reader(open("train.csv", "rb"), 
-                    delimiter=",", quoting=csv.QUOTE_NONE)
-positives = []
-negatives = []
-lastId = None
-lastRecord = []
-for row, record in enumerate(reader):
-    fields = []
-    i = 3
-    I = len(record)
-    while i < I:
-        fields.append(float(record[i]))
-        i = i +1
-    if lastId == record[1]:
-        lastRecord.append(fields)
-    else:
-        lastId = record[1]
-        lastRecord = []
-        if record[0] == "1":
-            positives.append(lastRecord)
-        elif record[0] == "0":
-            negatives.append(lastRecord)
-        
-print(str(len(positives)) + " positive examples")
-print(str(len(negatives)) + " negative examples")
 
-recurrenceRadius = int(1080 * 0.1)
-mostVisitedAreaRadius = recurrenceRadius * 2
+gbc = None
+if not (trainingDataFile is None):
+    reader = csv.reader(trainingDataFile,
+                        delimiter=",", quoting=csv.QUOTE_NONE)
+    positives = []
+    negatives = []
+    lastId = None
+    lastRecord = []
+    for row, record in enumerate(reader):
+        fields = []
+        i = 3
+        I = len(record)
+        while i < I:
+            fields.append(float(record[i]))
+            i = i +1
+        if lastId == record[1]:
+            lastRecord.append(fields)
+        else:
+            lastId = record[1]
+            lastRecord = []
+            if record[0] == "1":
+                positives.append(lastRecord)
+            elif record[0] == "0":
+                negatives.append(lastRecord)
+            
+    print(str(len(positives)) + " positive examples")
+    print(str(len(negatives)) + " negative examples")
 
-trainX = []
-trainy = []
-for xyPoints in positives:
-    features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
-    trainX.append(features)
-    trainy.append(1)
-for xyPoints in negatives:
-    features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
-    trainX.append(features)
-    trainy.append(0)
-    
-gbc = GradientBoostingClassifier()
-gbc.fit(trainX, trainy)
+    recurrenceRadius = int(1080 * 0.1)
+    mostVisitedAreaRadius = recurrenceRadius * 2
+
+    trainX = []
+    trainy = []
+    for xyPoints in positives:
+        features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+        trainX.append(features)
+        trainy.append(1)
+    for xyPoints in negatives:
+        features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+        trainX.append(features)
+        trainy.append(0)
+        
+    gbc = GradientBoostingClassifier()
+    gbc.fit(trainX, trainy)
 
 Fs=11025  # sample rate
 sounds = []
@@ -927,24 +940,26 @@ class OpenGazeTracker:
                     print(output)
                     
                 else:
-                    output = []
-                    for point in self._xyPoints:
-                        record = []
-                        for element in point:
-                            record.append(str(element))
-                        output.append(",".join(record))
-                    featureFile = open("data.csv", "a")
-                    featureFile.write("\n".join(output) + "\n")
-                    featureFile.close()
                     print(self._trialId)
-                    xyPoints = []
-                    for point in self._xyPoints:
-                        xyPoints.append(( point[3], point[4] ))
-                    features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
-                    if gbc.predict([ features ])[0] == 1:
-                        sounds[1].play()
-                    else:
-                        sounds[0].play()
+                    if not (saveDataFilename == ''):
+                        output = []
+                        for point in self._xyPoints:
+                            record = []
+                            for element in point:
+                                record.append(str(element))
+                            output.append(",".join(record))
+                        featureFile = open(saveDataFilename, "a")
+                        featureFile.write("\n".join(output) + "\n")
+                        featureFile.close()
+                    if not (gbc is None):
+                        xyPoints = []
+                        for point in self._xyPoints:
+                            xyPoints.append(( point[3], point[4] ))
+                        features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+                        if gbc.predict([ features ])[0] == 1:
+                            sounds[1].play()
+                        else:
+                            sounds[0].play()
                     
                 self._trialId = self._trialId + 1
                     
