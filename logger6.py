@@ -43,12 +43,16 @@ positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixab
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
 def getImageUrls(pixabayQueryString):
-    page = urllib.urlopen("https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false" % urllib.quote(pixabayQueryString))
+    url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false" % urllib.quote(pixabayQueryString)
+    print(url)
+    page = urllib.urlopen(url)
     page = json.load(page)
     hits = int(page["totalHits"])
+    print(hits)
     pages = np.arange(math.ceil(hits / 20.0)) + 1
     np.random.shuffle(pages)
     pages = pages[0:6]
+    print(pages)
     urls = []
     for i in pages:
         page = urllib.urlopen("https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false&page=%i" % (urllib.quote(positiveQueryString), i))
@@ -56,6 +60,7 @@ def getImageUrls(pixabayQueryString):
         for hit in page["hits"]:
             urls.append(hit["largeImageURL"])
     np.random.shuffle(urls)
+    print(urls[0:60])
     return urls[0:60]
 
 positiveImageUrls = []
