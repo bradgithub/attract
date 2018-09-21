@@ -23,10 +23,10 @@ import random
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 
-from tkinter import tk
+from tkinter import Tk
 from tkinter.filedialog import *
 
-root = tk.Tk()
+root = Tk()
 root.withdraw()
 
 trainingDataFile = askopenfile(title="Open training data file",
