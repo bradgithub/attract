@@ -44,6 +44,7 @@ positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixab
 root.deiconify()
 root.lift()
 root.focus_force()
+root.withdraw()
 
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
