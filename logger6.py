@@ -42,6 +42,9 @@ saveDataFilename = asksaveasfilename(title="Save response data file",
 positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
 negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
 
+print(positiveQueryString)
+print(negativeQueryString)
+
 def getImageUrls(pixabayQueryString):
     url = "https://pixabay.com/api/?key=10192623-ed5e70843b25628749eabe529&q=%s&image_type=photo&pretty=true&safesearch=false" % urllib.quote(pixabayQueryString)
     print(url)
@@ -521,7 +524,8 @@ def main(argv):
         else:
             toggleSemaphore.release()
         
-        screen.blit(image, (0,0))
+        if not (image is None):
+            screen.blit(image, (0,0))
         toggleSemaphore.acquire()
         if not (gazePointXY is None) and drawGazePointEvent.isSet():
             x, y = gazePointXY
