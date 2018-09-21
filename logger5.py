@@ -499,7 +499,7 @@ def main(argv):
                     print("exiting...")
                     sys.exit(0)
                     
-                elif event.key == pygame.K_SPACE:
+                elif event.key == pygame.K_RETURN:
                     toggleSemaphore.acquire()
                     if drawGazePointEvent.isSet():
                         drawGazePointEvent.clear()
