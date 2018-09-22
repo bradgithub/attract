@@ -33,6 +33,9 @@ from setup_panel import SetupPanel
 
 root = Tk()
 setupPanel = SetupPanel(root)
+root.lift()
+root.wm_attributes("-topmost", 1)
+root.focus_force()
 root.mainloop()
 
 trainingDataFileName = setupPanel.trainingDataFilename
