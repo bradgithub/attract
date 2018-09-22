@@ -1,3 +1,5 @@
+print("Loading...")
+
 import os
 import sys
 import copy
@@ -32,6 +34,7 @@ from Tkinter import Tk
 from setup_panel import SetupPanel
 
 root = Tk()
+root.title("Arousal Predictor")
 setupPanel = SetupPanel(root)
 root.lift()
 root.wm_attributes("-topmost", 1)
