@@ -28,26 +28,20 @@ import io
 import json
 import math
 
-import tkinter
 from Tkinter import Tk
-from tkinter.filedialog import askopenfile, asksaveasfilename
-import tkSimpleDialog
+from setup_panel import SetupPanel
 
 root = Tk()
-root.withdraw()
+setupPanel = SetupPanel(root)
+root.mainloop()
 
-trainingDataFile = askopenfile(title="Open training data file",
-                               filetypes=(("CSV files","*.csv"),("all files","*.*")))
+trainingDataFileName = setupPanel.trainingDataFilename
+saveDataFilename = setupPanel.saveDataFilename
+positiveQueryString = setupPanel.arousalQuery
+negativeQueryString = setupPanel.nonArousalQuery
 
-saveDataFilename = asksaveasfilename(title="Save response data file",
-                               filetypes=(("CSV files","*.csv"),("all files","*.*")))
-
-positiveQueryString = tkSimpleDialog.askstring("Input", "Positive examples Pixabay query string")
-
-negativeQueryString = tkSimpleDialog.askstring("Input", "Negative examples Pixabay query string")
-
-root.destroy()
-
+print(trainingDataFileName)
+print(saveDataFilename)
 print(positiveQueryString)
 print(negativeQueryString)
 
@@ -383,9 +377,12 @@ class RecurrenceQuantificationAnalysis:
         self._gazePathLengthStdDev = np.sqrt(lengthVariance / (i - 2))
 
 gbc = None
-if not (trainingDataFile is None):
-    reader = csv.reader(trainingDataFile,
+if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
+    trainingDataFile = open(trainingDataFileName, "rb")
+    reader = csv.reader(trainingDataFile
                         delimiter=",", quoting=csv.QUOTE_NONE)
+    trainingDataFile.close()
+    
     positives = []
     negatives = []
     lastId = None
@@ -1033,7 +1030,7 @@ class OpenGazeTracker:
                     
                 else:
                     print(self._trialId)
-                    if not (saveDataFilename == ''):
+                    if not (saveDataFilename is None) and not (saveDataFilename == ''):
                         output = []
                         for point in self._xyPoints:
                             record = []
