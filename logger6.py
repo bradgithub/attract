@@ -379,7 +379,7 @@ class RecurrenceQuantificationAnalysis:
 gbc = None
 if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
     trainingDataFile = open(trainingDataFileName, "rb")
-    reader = csv.reader(trainingDataFile
+    reader = csv.reader(trainingDataFile,
                         delimiter=",", quoting=csv.QUOTE_NONE)
     trainingDataFile.close()
     
