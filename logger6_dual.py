@@ -363,7 +363,7 @@ def main(argv):
                         
             else:
                 imageClass = np.random.choice([ 0, 1 ])
-                images = []
+                lrimages = []
                 for imageClass_ in [ imageClass, 1 - imageClass ]:
                     if len(imageUrls[imageClass_]) == 0:
                         imagePath = np.random.choice(imageLists[imageClass_])
@@ -383,12 +383,12 @@ def main(argv):
                             images[imageClass_][imageUrl] = image
                         else:
                             image = images[imageClass_][imageUrl]
-                    images.append(image)
+                    lrimages.append(image)
                     
                     combinedImage = pygame.Surface((width, height))
                     combinedImage.fill((0, 0, 0))
-                    combinedImage.blit(images[0], (int(width / 12.0), int(height / 12.0)))
-                    combinedImage.blit(images[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
+                    combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
+                    combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
                     image = combinedImage
             
         else:
