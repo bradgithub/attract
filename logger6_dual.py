@@ -464,6 +464,7 @@ def main(argv):
                 combinedImage = pygame.Surface((width, height))
                 combinedImage.fill((0, 0, 0))
                 highlightImage = pygame.Surface((int(width / 2.0), height))
+                highlightImage.fill((255, 255, 255))
                 if leftHighlight:
                     combinedImage.blit(highlightImage, (0, 0))
                 elif rightHighlight:
