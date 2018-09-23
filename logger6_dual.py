@@ -209,10 +209,10 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
             xyPointsL = []
             xyPointsR = []
             for point in xyPoints:
-                if point[3] < width / 2.0:
-                    xyPointsL.append(( point[3], point[4] ))
+                if point[0] < width / 2.0:
+                    xyPointsL.append(( point[0], point[1] ))
                 else:
-                    xyPointsR.append(( point[3], point[4] ))
+                    xyPointsR.append(( point[0], point[1] ))
             features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
             featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
@@ -230,10 +230,10 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
             xyPointsL = []
             xyPointsR = []
             for point in xyPoints:
-                if point[3] < width / 2.0:
-                    xyPointsL.append(( point[3], point[4] ))
+                if point[0] < width / 2.0:
+                    xyPointsL.append(( point[0], point[1] ))
                 else:
-                    xyPointsR.append(( point[3], point[4] ))
+                    xyPointsR.append(( point[0], point[1] ))
             features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
             featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
