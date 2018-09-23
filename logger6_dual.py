@@ -216,6 +216,7 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
                 else:
                     xyPointsR.append(( point[0], point[1] ))
             features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
+            features = []
             featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             for feature in featuresL:
@@ -225,6 +226,7 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
             trainX.append(features)
             trainy.append(1)
             features = [ len(xyPointsR) / float(len(xyPointsL) + len(xyPointsR)) ]
+            features = []
             featuresL = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             featuresR = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             for feature in featuresL:
@@ -248,6 +250,7 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
                 else:
                     xyPointsR.append(( point[0], point[1] ))
             features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
+            features = []
             featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             for feature in featuresL:
@@ -257,6 +260,7 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
             trainX.append(features)
             trainy.append(0)
             features = [ len(xyPointsR) / float(len(xyPointsL) + len(xyPointsR)) ]
+            features = []
             featuresL = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             featuresR = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
             for feature in featuresL:
@@ -975,6 +979,7 @@ class OpenGazeTracker:
                                 else:
                                     xyPointsR.append(( point[3], point[4] ))
                             features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
+                            features = []
                             featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
                             featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
                             for feature in featuresL:
