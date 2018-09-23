@@ -205,6 +205,8 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
         features = None
         if sequenceTaskMode:
             features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            trainX.append(features)
+            trainy.append(1)
         else:
             xyPointsL = []
             xyPointsR = []
@@ -220,12 +222,23 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
                 features.append(feature)
             for feature in featuresR:
                 features.append(feature)
-        trainX.append(features)
-        trainy.append(1)
+            trainX.append(features)
+            trainy.append(1)
+            features = [ len(xyPointsR) / float(len(xyPointsL) + len(xyPointsR)) ]
+            featuresL = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            featuresR = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            for feature in featuresL:
+                features.append(feature)
+            for feature in featuresR:
+                features.append(feature)
+            trainX.append(features)
+            trainy.append(0)
     for xyPoints in negatives:
         features = None
         if sequenceTaskMode:
             features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            trainX.append(features)
+            trainy.append(0)
         else:
             xyPointsL = []
             xyPointsR = []
@@ -241,9 +254,49 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
                 features.append(feature)
             for feature in featuresR:
                 features.append(feature)
-        trainX.append(features)
-        trainy.append(0)
+            trainX.append(features)
+            trainy.append(0)
+            features = [ len(xyPointsR) / float(len(xyPointsL) + len(xyPointsR)) ]
+            featuresL = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            featuresR = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            for feature in featuresL:
+                features.append(feature)
+            for feature in featuresR:
+                features.append(feature)
+            trainX.append(features)
+            trainy.append(1)
+
+    trials = 5
+    
+    for trial in np.arange(trials):
+        indices = np.arange(len(trainX))
+        np.random.shuffle(indices)
+
+        trainX_ = []
+        trainy_ = []
+
+        i = 0
+        while i < int(len(trainX) * 0.8):
+            trainX_.append(trainX[indices[i]])
+            trainy_.append(trainy[indices[i]])
+            i = i + 1
         
+        #gbc = GradientBoostingClassifier(learning_rate=0.01, n_estimators=5000, subsample=0.75, presort=True)
+        gbc = GradientBoostingClassifier()
+        gbc.fit(trainX_, trainy_)
+
+        testX_ = []
+        testy_ = []
+
+        j = i
+        while j < len(trainX):
+            testX_.append(trainX[indices[i]])
+            testy_.append(trainy[indices[i]])
+            j = j + 1
+
+        score = np.sum(gbc.predict(testX_) == testy_)
+        print(score / float(len(testX_)))
+
     gbc = GradientBoostingClassifier()
     gbc.fit(trainX, trainy)
 
@@ -371,7 +424,7 @@ def main(argv):
             else:
                 imageClass = np.random.choice([ 0, 1 ])
                 lrimages = []
-                for imageClass_ in [ imageClass, 1 - imageClass ]:
+                for imageClass_ in [ 1 - imageClass, imageClass ]:
                     if len(imageUrls[imageClass_]) == 0:
                         imagePath = np.random.choice(imageLists[imageClass_])
                         if not (imagePath in images[imageClass_]):
