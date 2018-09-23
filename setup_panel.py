@@ -8,6 +8,7 @@ class SetupPanel():
         self.saveDataFilename = ""
         self.arousalQuery = ""
         self.nonArousalQuery = ""
+        self.mode = "single"
 
         buttonWidth = 20
         labelWidth = 25
@@ -52,9 +53,13 @@ class SetupPanel():
             return True
         
         def startSingleMode():
+            self.mode = "single"
+            
             parent.destroy()
 
         def startDualMode():
+            self.mode = "dual"
+            
             parent.destroy()
 
         buttonTrainingData = Button(container)
