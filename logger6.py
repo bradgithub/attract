@@ -158,7 +158,6 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
     trainingDataFile = open(trainingDataFileName, "rb")
     reader = csv.reader(trainingDataFile,
                         delimiter=",", quoting=csv.QUOTE_NONE)
-    trainingDataFile.close()
     
     positives = []
     negatives = []
@@ -180,6 +179,8 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
                 positives.append(lastRecord)
             elif record[0] == "0":
                 negatives.append(lastRecord)
+    
+    trainingDataFile.close()
             
     print(str(len(positives)) + " positive examples")
     print(str(len(negatives)) + " negative examples")
