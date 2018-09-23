@@ -47,6 +47,9 @@ trainingDataFileName = setupPanel.trainingDataFilename
 saveDataFilename = setupPanel.saveDataFilename
 positiveQueryString = setupPanel.arousalQuery
 negativeQueryString = setupPanel.nonArousalQuery
+sequenceTaskMode = True
+if not (setupPanel.mode == "single"):
+    sequenceTaskMode = False
 
 print(trainingDataFileName)
 print(saveDataFilename)
@@ -153,6 +156,7 @@ def player():
 #                      name="player",
 #                      args=[])
 
+width = 1080
 gbc = None
 if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
     trainingDataFile = open(trainingDataFileName, "rb")
@@ -191,11 +195,45 @@ if not (trainingDataFileName is None) and not (trainingDataFileName == ""):
     trainX = []
     trainy = []
     for xyPoints in positives:
-        features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+        features = None
+        if sequenceTaskMode:
+            features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+        else:
+            xyPointsL = []
+            xyPointsR = []
+            for point in xyPoints:
+                if point[3] < width / 2.0:
+                    xyPointsL.append(( point[3], point[4] ))
+                else:
+                    xyPointsR.append(( point[3], point[4] ))
+            features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
+            featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            for feature in featuresL:
+                features.append(feature)
+            for feature in featuresR:
+                features.append(feature)
         trainX.append(features)
         trainy.append(1)
     for xyPoints in negatives:
-        features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+        features = None
+        if sequenceTaskMode:
+            features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+        else:
+            xyPointsL = []
+            xyPointsR = []
+            for point in xyPoints:
+                if point[3] < width / 2.0:
+                    xyPointsL.append(( point[3], point[4] ))
+                else:
+                    xyPointsR.append(( point[3], point[4] ))
+            features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
+            featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+            for feature in featuresL:
+                features.append(feature)
+            for feature in featuresR:
+                features.append(feature)
         trainX.append(features)
         trainy.append(0)
         
@@ -302,33 +340,56 @@ def main(argv):
             screen.fill((0, 0, 0))
             pygame.display.flip()
 
-            imageClass = np.random.choice([ 0, 1 ])
-            if len(imageUrls[imageClass]) == 0:
-                imagePath = np.random.choice(imageLists[imageClass])
-                if not (imagePath in images[imageClass]):
-                    image = pygame.image.load(imagePath)
-                    image = pygame.transform.smoothscale(image, (width, height))
-                    images[imageClass][imagePath] = image
+            if sequenceTaskMode:
+                imageClass = np.random.choice([ 0, 1 ])
+                if len(imageUrls[imageClass]) == 0:
+                    imagePath = np.random.choice(imageLists[imageClass])
+                    if not (imagePath in images[imageClass]):
+                        image = pygame.image.load(imagePath)
+                        image = pygame.transform.smoothscale(image, (width, height))
+                        images[imageClass][imagePath] = image
+                    else:
+                        image = images[imageClass][imagePath]
                 else:
-                    image = images[imageClass][imagePath]
+                    imageUrl = np.random.choice(imageUrls[imageClass])
+                    if not (imageUrl in images[imageClass]):
+                        image = urllib.urlopen(imageUrl).read()
+                        image = io.BytesIO(image)
+                        image = pygame.image.load(image)
+                        image = pygame.transform.smoothscale(image, (width, height))
+                        images[imageClass][imageUrl] = image
+                    else:
+                        image = images[imageClass][imageUrl]
+                        
             else:
-                imageUrl = np.random.choice(imageUrls[imageClass])
-                if not (imageUrl in images[imageClass]):
-                    image = urllib.urlopen(imageUrl).read()
-                    image = io.BytesIO(image)
-                    image = pygame.image.load(image)
-                    image = pygame.transform.smoothscale(image, (width, height))
-                    images[imageClass][imageUrl] = image
-                else:
-                    image = images[imageClass][imageUrl]
+                imageClass = np.random.choice([ 0, 1 ])
+                images = []
+                for imageClass_ in [ imageClass, 1 - imageClass ]:
+                    if len(imageUrls[imageClass_]) == 0:
+                        imagePath = np.random.choice(imageLists[imageClass_])
+                        if not (imagePath in images[imageClass_]):
+                            image = pygame.image.load(imagePath)
+                            image = pygame.transform.smoothscale(image, (int(width / 3.0), int(height * 5 / 6.0)))
+                            images[imageClass_][imagePath] = image
+                        else:
+                            image = images[imageClass_][imagePath]
+                    else:
+                        imageUrl = np.random.choice(imageUrls[imageClass_])
+                        if not (imageUrl in images[imageClass_]):
+                            image = urllib.urlopen(imageUrl).read()
+                            image = io.BytesIO(image)
+                            image = pygame.image.load(image)
+                            image = pygame.transform.smoothscale(image, (int(width / 3.0), int(height * 5 / 6.0)))
+                            images[imageClass_][imageUrl] = image
+                        else:
+                            image = images[imageClass_][imageUrl]
+                    images.append(image)
                     
-                    
-            combinedImage = pygame.Surface((width, height))
-            combinedImage.fill((0, 0, 0))
-            newImage = pygame.transform.smoothscale(image, (int(width / 3.0), int(height * 5 / 6.0)))
-            combinedImage.blit(newImage, (int(width / 12.0), int(height / 12.0)))
-            combinedImage.blit(newImage, (int(width * 7.0 / 12.0), int(height / 12.0)))
-            image = combinedImage
+                    combinedImage = pygame.Surface((width, height))
+                    combinedImage.fill((0, 0, 0))
+                    combinedImage.blit(images[0], (int(width / 12.0), int(height / 12.0)))
+                    combinedImage.blit(images[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
+                    image = combinedImage
             
         else:
             toggleSemaphore.release()
@@ -836,14 +897,34 @@ class OpenGazeTracker:
                         featureFile.write("\n".join(output) + "\n")
                         featureFile.close()
                     if not (gbc is None):
-                        xyPoints = []
-                        for point in self._xyPoints:
-                            xyPoints.append(( point[3], point[4] ))
-                        features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
-                        if gbc.predict([ features ])[0] == 1:
-                            sounds[1].play()
+                        if sequenceTaskMode:
+                            xyPoints = []
+                            for point in self._xyPoints:
+                                xyPoints.append(( point[3], point[4] ))
+                            features = RecurrenceQuantificationAnalysis(xyPoints, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+                            if gbc.predict([ features ])[0] == 1:
+                                sounds[1].play()
+                            else:
+                                sounds[0].play()
                         else:
-                            sounds[0].play()
+                            xyPointsL = []
+                            xyPointsR = []
+                            for point in self._xyPoints:
+                                if point[3] < width / 2.0:
+                                    xyPointsL.append(( point[3], point[4] ))
+                                else:
+                                    xyPointsR.append(( point[3], point[4] ))
+                            features = [ len(xyPointsL) / float(len(xyPointsL) + len(xyPointsR)) ]
+                            featuresL = RecurrenceQuantificationAnalysis(xyPointsL, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+                            featuresR = RecurrenceQuantificationAnalysis(xyPointsR, recurrenceRadius, mostVisitedAreaRadius).getFeatures()
+                            for feature in featuresL:
+                                features.append(feature)
+                            for feature in featuresR:
+                                features.append(feature)
+                            if gbc.predict([ features ])[0] == 1:
+                                sounds[1].play()
+                            else:
+                                sounds[0].play()
                     
                 self._trialId = self._trialId + 1
                     
