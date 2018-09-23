@@ -51,6 +51,10 @@ sequenceTaskMode = True
 if not (setupPanel.mode == "single"):
     sequenceTaskMode = False
 
+saveDataFilename = "C:/Users/Gazepoint/Documents/attract/dual1.csv"
+positiveQueryString = "bikini"
+negativeQueryString = "disgusting"
+
 print(trainingDataFileName)
 print(saveDataFilename)
 print(positiveQueryString)
@@ -385,11 +389,11 @@ def main(argv):
                             image = images[imageClass_][imageUrl]
                     lrimages.append(image)
                     
-                    combinedImage = pygame.Surface((width, height))
-                    combinedImage.fill((0, 0, 0))
-                    combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
-                    combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
-                    image = combinedImage
+                combinedImage = pygame.Surface((width, height))
+                combinedImage.fill((0, 0, 0))
+                combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
+                combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
+                image = combinedImage
             
         else:
             toggleSemaphore.release()
