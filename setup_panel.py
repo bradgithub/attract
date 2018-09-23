@@ -53,11 +53,15 @@ class SetupPanel():
             return True
         
         def startSingleMode():
+            self.arousalQuery = entryPositiveQuery.get()
+            self.nonArousalQuery = entryNegativeQuery.get()
             self.mode = "single"
             
             parent.destroy()
 
         def startDualMode():
+            self.arousalQuery = entryPositiveQuery.get()
+            self.nonArousalQuery = entryNegativeQuery.get()
             self.mode = "dual"
             
             parent.destroy()
