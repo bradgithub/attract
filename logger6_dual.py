@@ -392,6 +392,9 @@ def main(argv):
     radius = int(min(height, width) * 0.05)
     
     image = None
+    lrimages = None
+    highlightImage = pygame.Surface((int(width / 2.0), height))
+    highlightImage.fill((255, 255, 255))
     
     while True:
         toggleSemaphore.acquire()
@@ -460,23 +463,23 @@ def main(argv):
                         else:
                             image = images[imageClass_][imageUrl]
                     lrimages.append(image)
-                    
-                combinedImage = pygame.Surface((width, height))
-                combinedImage.fill((0, 0, 0))
-                highlightImage = pygame.Surface((int(width / 2.0), height))
-                highlightImage.fill((255, 255, 255))
-                if leftHighlight:
-                    combinedImage.blit(highlightImage, (0, 0))
-                elif rightHighlight:
-                    combinedImage.blit(highlightImage, (int(width / 2.0), 0))
-                combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
-                combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
-                image = combinedImage
             
         else:
             toggleSemaphore.release()
                     
         toggleSemaphore.acquire()
+        
+        if not (lrimages is None):
+            combinedImage = pygame.Surface((width, height))
+            combinedImage.fill((0, 0, 0))
+            if leftHighlight:
+                combinedImage.blit(highlightImage, (0, 0))
+            elif rightHighlight:
+                combinedImage.blit(highlightImage, (int(width / 2.0), 0))
+            combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
+            combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
+            image = combinedImage
+        
         if not (image is None):
             screen.blit(image, (0,0))
             
