@@ -325,7 +325,7 @@ def main(argv):
                     
             combinedImage = pygame.Surface((width, height))
             combinedImage.fill((0, 0, 0))
-            newImage = pygame.transform.smoothscale(image, (int(width / 3.0), int(height / 3.0)))
+            newImage = pygame.transform.smoothscale(image, (int(width / 3.0), int(height * 5 / 6.0)))
             combinedImage.blit(newImage, (int(width / 12.0), int(height / 12.0)))
             combinedImage.blit(newImage, (int(width * 7.0 / 12.0), int(height / 12.0)))
             image = combinedImage
