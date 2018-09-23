@@ -51,9 +51,12 @@ sequenceTaskMode = True
 if not (setupPanel.mode == "single"):
     sequenceTaskMode = False
 
-saveDataFilename = "C:/Users/Gazepoint/Documents/attract/dual1.csv"
+trainingDataFileName = "C:/Users/Gazepoint/Documents/attract/dual1.csv"
+saveDataFilename = "C:/Users/Gazepoint/Documents/attract/dual2.csv"
 positiveQueryString = "bikini"
 negativeQueryString = "disgusting"
+positiveQueryString = "swimsuit sexy"
+negativeQueryString = "trash"
 
 print(trainingDataFileName)
 print(saveDataFilename)
