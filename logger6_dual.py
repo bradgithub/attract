@@ -429,18 +429,6 @@ def main(argv):
                         image = images[imageClass][imageUrl]
                         
             else:
-                leftHighlight = False
-                rightHighlight = False
-                if not (gazePointXY is None) and drawGazePointEvent.isSet():
-                    x, y = gazePointXY
-                    
-                    if x >= 0 and x <= 1 and y >= 0 and y <= 1:
-                        if not pauseEvent.isSet():
-                            if x < 0.5:
-                                leftHighlight = True
-                            else:
-                                rightHighlight = True
-                            
                 imageClass = np.random.choice([ 0, 1 ])
                 lrimages = []
                 for imageClass_ in [ 1 - imageClass, imageClass ]:
@@ -469,6 +457,18 @@ def main(argv):
                     
         toggleSemaphore.acquire()
         
+        leftHighlight = False
+        rightHighlight = False
+        if not (gazePointXY is None) and drawGazePointEvent.isSet():
+            x, y = gazePointXY
+            
+            if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                if not pauseEvent.isSet():
+                    if x < 0.5:
+                        leftHighlight = True
+                    else:
+                        rightHighlight = True
+                        
         if not (lrimages is None):
             combinedImage = pygame.Surface((width, height))
             combinedImage.fill((0, 0, 0))
