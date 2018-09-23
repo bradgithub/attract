@@ -426,6 +426,18 @@ def main(argv):
                         image = images[imageClass][imageUrl]
                         
             else:
+                leftHighlight = False
+                rightHighlight = False
+                if not (gazePointXY is None) and drawGazePointEvent.isSet():
+                    x, y = gazePointXY
+                    
+                    if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                        if not pauseEvent.isSet():
+                            if x < 0.5:
+                                leftHighlight = True
+                            else:
+                                rightHighlight = True
+                            
                 imageClass = np.random.choice([ 0, 1 ])
                 lrimages = []
                 for imageClass_ in [ 1 - imageClass, imageClass ]:
@@ -451,6 +463,11 @@ def main(argv):
                     
                 combinedImage = pygame.Surface((width, height))
                 combinedImage.fill((0, 0, 0))
+                highlightImage = pygame.Surface((int(width / 2.0), height))
+                if leftHighlight:
+                    combinedImage.blit(highlightImage, (0, 0))
+                elif rightHighlight:
+                    combinedImage.blit(highlightImage, (int(width / 2.0), 0))
                 combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
                 combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
                 image = combinedImage
@@ -469,14 +486,15 @@ def main(argv):
                 x = int(x * width)
                 y = int(y * height)
                 if pauseEvent.isSet():
-                    pygame.draw.circle(screen, yellow, (x, y), radius, 3)
+                    pygame.draw.circle(screen, red, (x, y), radius, 3)
                     
                 elif saccadeEvent.isSet():
                     pygame.draw.circle(screen, green, (x, y), radius, 3)
+                    #pygame.draw.circle(screen, yello, (x, y), radius, 3)
                     saccadeEvent.clear()
                 
                 else:
-                    pygame.draw.circle(screen, red, (x, y), radius, 3)            
+                    pygame.draw.circle(screen, green, (x, y), radius, 3)            
                 #pygame.draw.circle(screen, white, (x, y), radius, 2)
             
         pygame.display.flip()

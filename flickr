@@ -1,0 +1,50 @@
+http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=cYNxKt64&&query=christina+aguilera&output=json
+
+
+http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=8cccb7028346a7af96f088188f142fdb&tags=christina+aguilera
+
+<photo id="28558959417" owner="136680201@N07" secret="f2465ab60d" server="1822" farm="2" title="Liberation Booklet 4" ispublic="1" isfriend="0" isfamily="0"/>
+
+
+http://farm"+ item.farm +".static.flickr.com/"+ item.server +"/"+ item.id +"_"+ item.secret +"_m.jpg";
+
+http://farm"+ 2 +".static.flickr.com/"+ 1822 +"/"+ 28558959417 +"_"+ f2465ab60d + "_m.jpg";
+
+http://farm2.static.flickr.com/1822/28558959417_f2465ab60d_m.jpg
+
+
+<photo id="8078048703" owner="88503637@N06" secret="d5b75284a9" server="8052" farm="9" title="2pac by Nat Morley" ispublic="1" isfriend="0" isfamily="0"/>
+
+http://farm9.static.flickr.com/8052/8078048703_d5b75284a9_b.jpg
+
+
+<photo id="43932217405" owner="152226590@N03" secret="e96c744bfe" server="1906" farm="2" title="CHRISTINA AGUILERA - LOTUS (Fanmade Album Cover)" ispublic="1" isfriend="0" isfamily="0"/>
+http://farm2.static.flickr.com/1906/43932217405_e96c744bfe_b.jpg
+
+
+<photo id="5182941923" owner="38446563@N03" secret="23f3716f85" server="1401" farm="2" title="?CHRISTINA AGUILERA? CHRISTINA BAILARINA" ispublic="1" isfriend="0" isfamily="0"/>
+http://farm2.static.flickr.com/1401/5182941923_23f3716f85_b.jpg
+
+import urllib, json
+
+https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=67991330d6a40e44c495b8382bf95f99&text=christina+aguilera&sort=relevance&format=json&nojsoncallback=1&auth_token=72157700072095631-5e45bd6888ef3fae&api_sig=0f22eb17494631bf246aa2578ccf0847
+
+r = urllib.urlopen("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=8cccb7028346a7af96f088188f142fdb&text=christina+aguilera&page=1&sort=relevance&format=json")
+p = json.load(r)
+
+
+r = urllib.urlopen("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=67991330d6a40e44c495b8382bf95f99&text=christina+aguilera&sort=relevance&format=json&nojsoncallback=1&auth_token=72157700072095631-5e45bd6888ef3fae&api_sig=0f22eb17494631bf246aa2578ccf0847")
+p = json.load(r)
+v = p["photos"]["photo"][0]
+print("http://farm%s.static.flickr.com/%s/%s_%s_b.jpg" % (v["farm"], v["server"], v["id"], v["secret"]))
+
+r = urllib.urlopen("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=8cccb7028346a7af96f088188f142fdb&text=christina+aguilera&sort=relevance&safe_search=1&content_type=1&media=photos&format=json&nojsoncallback=1&privacy_filter=1")
+p = json.load(r)
+for photo in p["photos"]["photo"]:
+    id = photo["id"]
+    r = urllib.urlopen("https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=8cccb7028346a7af96f088188f142fdb&photo_id=%s&format=json&nojsoncallback=1" % id)
+    q = json.load(r)
+    for size in q["sizes"]["size"]:
+        if size["label"] == "Large":
+            print(size["source"])
+            break
