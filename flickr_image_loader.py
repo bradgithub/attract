@@ -11,7 +11,8 @@ class FlickrImageLoader:
     def __init__(self,
                  searchQueries,
                  randomize,
-                 maxImagesPerCategory):
+                 maxImagesPerCategory,
+                 infoCallback):
         self._images = []
         self._lastImageChoices = []
 
@@ -24,6 +25,10 @@ class FlickrImageLoader:
             self._images.append([])
             self._lastImageChoices.append(None)
                 
+        def log(message):
+            if not (infoCallback is None):
+                infoCallback(message)
+        
         def makeFlickrApiUrl(options):
             query = []
             
@@ -121,61 +126,6 @@ class FlickrImageLoader:
             
             return None
         
-        def getFlickrImageUrls(query):
-            url = makeFlickrSearchUrl(query, 1)
-
-            try:
-                json = getJson(url)
-            
-                pages = int(json["photos"]["pages"])
-                perPage = int(json["photos"]["perpage"])
-            except Exception:
-                return []
-            
-            pages = np.arange(pages)
-            if randomize:
-                np.random.shuffle(pages)
-                
-
-            urls = {}
-            finished = False
-            for page in pages:
-                url = makeFlickrSearchUrl(query, page)
-
-                try:
-                    pageJson = getJson(url)
-
-                    for photo in pageJson["photos"]["photo"]:
-                        id = photo["id"]
-                        url = makeFlickrGetSizesUrl(id)
-
-                        try:
-                            sizesJson = getJson(url)
-                            for size in sizesJson["sizes"]["size"]:
-                                if size["label"] == "Large":
-                                    urls[size["source"]] = True
-                                    if randomize and len(urls) == int(maxImagesPerCategory * 1.5):
-                                        finished = True
-                                        break
-                                    elif len(urls) == maxImagesPerCategory:
-                                        finished = True
-                                        break
-                        except Exception:
-                            pass
-                        if finished:
-                            break
-                    if finished:
-                        break
-                except Exception:
-                    pass
-                
-            urls = urls.keys()
-                                
-            if randomize:
-                np.random.shuffle(urls)
-
-            return urls[0:maxImagesPerCategory]
-        
         def loadImageUrl(url):
             try:
                 image = urllib.urlopen(url).read()
@@ -188,9 +138,12 @@ class FlickrImageLoader:
             urlsToLoad = []
             categoryId = 0
             for searchQuery in searchQueries:
+                log("Running " + str(searchQuery) + " search")
 
                 urlIds = getFlickrImageIds(searchQuery)
 
+                log("Retrieved " + str(len(urlIds)) + " possible image urls")
+                
                 count = 0
                 for urlId in urlIds:
                     urlsToLoad.append([ count, categoryId, urlId ])
@@ -241,7 +194,7 @@ class FlickrImageLoader:
 loader = FlickrImageLoader([
     "christina aguilera",
     "britney spears"
-], True, 200)
+], True, 200, print)
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
