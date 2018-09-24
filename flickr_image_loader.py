@@ -10,6 +10,7 @@ from threading import Lock, Thread
 class FlickrImageLoader:
     def __init__(self,
                  searchQueries,
+                 groupIds,
                  randomize,
                  maxImagesPerCategory,
                  infoCallback):
@@ -40,7 +41,9 @@ class FlickrImageLoader:
             return "https://api.flickr.com/services/rest/?%s" % query
         
         def makeFlickrSearchUrl(query,
+                                groupId,
                                 page):
+            
             options = {
                 "method": "flickr.photos.search",
                 "api_key": "8cccb7028346a7af96f088188f142fdb",
@@ -54,6 +57,9 @@ class FlickrImageLoader:
                 "nojsoncallback": "1",
                 "privacy_filter": "1"
             }
+            
+            if not (groupId is None):
+                options["group_id"] = str(groupId)
             
             return makeFlickrApiUrl(options)
         
@@ -73,8 +79,9 @@ class FlickrImageLoader:
             
             return json.load(reader)
 
-        def getFlickrImageIds(query):
-            url = makeFlickrSearchUrl(query, 1)
+        def getFlickrImageIds(query,
+                              groupId):
+            url = makeFlickrSearchUrl(query, groupId, 1)
             
             try:
                 json = getJson(url)
@@ -86,7 +93,7 @@ class FlickrImageLoader:
                 ids = {}
                 finished = False
                 for page in pages:
-                    url = makeFlickrSearchUrl(query, page)
+                    url = makeFlickrSearchUrl(query, groupId, page)
 
                     try:
                         pageJson = getJson(url)
@@ -137,10 +144,10 @@ class FlickrImageLoader:
         def loader():
             urlsToLoad = []
             categoryId = 0
-            for searchQuery in searchQueries:
+            for searchQuery, groupId in zip(searchQueries, groupIds):
                 log("Running " + str(searchQuery) + " search")
 
-                urlIds = getFlickrImageIds(searchQuery)
+                urlIds = getFlickrImageIds(searchQuery, groupId)
 
                 log("Retrieved " + str(len(urlIds)) + " possible image urls")
                 
@@ -194,40 +201,44 @@ class FlickrImageLoader:
         self._lock.release()
         return image
             
-def log(message):
-    print(message)
-            
-loader = FlickrImageLoader([
-    "christina aguilera",
-    "britney spears"
-], True, 200, log)
+if __name__ == "__main__":
+    def log(message):
+        print(message)
+                
+    loader = FlickrImageLoader([
+        "christina aguilera",
+        "britney spears"
+    ], [
+        None,
+        None
+    ], True, 200, log)
 
-pygame.init()
-screen = pygame.display.set_mode((800, 600))
-height = screen.get_height()
-width = screen.get_width()
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600))
+    height = screen.get_height()
+    width = screen.get_width()
 
-count = 0
-while True:
-    if count % 30 == 0:
-        screen.fill((0, 0, 0))
-        imageA = loader.getImage(0, 400,600)
-        imageB = loader.getImage(1, 400,600)
-        if not (imageA is None):
-            screen.blit(imageA, (0,0))
-        if not (imageB is None):
-            screen.blit(imageB, (400,0))
-        pygame.display.flip()
-    count = count + 1
-    
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+    count = 0
+    while True:
+        if count % 30 == 0:
+            screen.fill((0, 0, 0))
+            imageA = loader.getImage(0, 400,600)
+            imageB = loader.getImage(1, 400,600)
+            if not (imageA is None):
+                screen.blit(imageA, (0,0))
+            if not (imageB is None):
+                screen.blit(imageB, (400,0))
+            pygame.display.flip()
+        count = count + 1
+        
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    print("exiting...")
+                    sys.exit(0)
+                    
+            elif event.type == pygame.QUIT:
                 print("exiting...")
                 sys.exit(0)
-                
-        elif event.type == pygame.QUIT:
-            print("exiting...")
-            sys.exit(0)
-    
-    pygame.time.delay(100)
+        
+        pygame.time.delay(100)

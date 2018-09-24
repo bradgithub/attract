@@ -1,0 +1,9 @@
+saveDataFilename = 
+useGazeFractionFeature = 
+nonArousalQuery = 
+arousalQuery = 
+randomizeImages = 0
+mode = single
+nonArousalGroupId = 
+trainingDataFilename = /home/toor/Projects/attract/train.csv
+arousalGroupId = 
