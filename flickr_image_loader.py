@@ -108,7 +108,7 @@ class FlickrImageLoader:
                 if randomize:
                     np.random.shuffle(ids)
                     
-                return ids[0:maxImagesPerCategory]
+                return ids
             except Exception:
                 return []
 
@@ -149,16 +149,19 @@ class FlickrImageLoader:
                     urlsToLoad.append([ count, categoryId, urlId ])
                     count = count + 1
                 categoryId = categoryId + 1
+            log("Retrieving images")
             urlsToLoad.sort(key=lambda x: (x[0], x[1]))
             for urlToLoad in urlsToLoad:
-                url = getFlickrImageUrl(urlToLoad[2])
+                if len(self._images[urlToLoad[1]]) < maxImagesPerCategory:
+                    url = getFlickrImageUrl(urlToLoad[2])
 
-                if not (url is None):
-                    image = loadImageUrl(url)
-                    if not (image is None):
-                        self._lock.acquire()
-                        self._images[urlToLoad[1]].append(image)
-                        self._lock.release()
+                    if not (url is None):
+                        image = loadImageUrl(url)
+                        if not (image is None):
+                            log("Retrieved category " + str(urlToLoad[1]) + " image url " + url)
+                            self._lock.acquire()
+                            self._images[urlToLoad[1]].append(image)
+                            self._lock.release()
 
         loaderThread = Thread(target=loader,
                               name="Image loader thread",
@@ -191,10 +194,13 @@ class FlickrImageLoader:
         self._lock.release()
         return image
             
+def log(message):
+    print(message)
+            
 loader = FlickrImageLoader([
     "christina aguilera",
     "britney spears"
-], True, 200, print)
+], True, 200, log)
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
