@@ -188,18 +188,42 @@ class Classifier:
                 totalNegativeCorrect = totalNegativeCorrect + negativeCorrect
                 totalNegativeExamples = totalNegativeExamples + negativeExamples
                 
+                positiveAccuracy = 0.
+                if positiveExamples > 0:
+                    positiveAccuracy = float(positiveCorrect) / positiveExamples
+                    
+                negativeAccuracy = 0
+                if negativeExamples > 0:
+                    negativeAccuracy = float(negativeCorrect) / negativeExamples
+                
+                overallAccuracy = 0
+                if positiveExamples + negativeExamples > 0:
+                    overallAccuracy = float(positiveCorrect + negativeCorrect) / (positiveExamples + negativeExamples)
+                
                 log("Validation Trial %i: %i / %i correct positives (%f), %i / %i correct negatives (%f), %i / %i correct overall (%f)" % (
                     trialId + 1,
-                    positiveCorrect, positiveExamples,float(positiveCorrect) / positiveExamples,
-                    negativeCorrect, negativeExamples, float(negativeCorrect) / negativeExamples,
+                    positiveCorrect, positiveExamples, positiveAccuracy,
+                    negativeCorrect, negativeExamples, negativeAccuracy,
                     positiveCorrect + negativeCorrect, positiveExamples + negativeExamples,
-                    float(positiveCorrect + negativeCorrect) / (positiveExamples + negativeExamples)))
+                    overallAccuracy))
 
+            positiveAccuracy = 0.
+            if totalPositiveExamples > 0:
+                positiveAccuracy = float(totalPositiveCorrect) / totalPositiveExamples
+                
+            negativeAccuracy = 0
+            if totalNegativeExamples > 0:
+                negativeAccuracy = float(totalNegativeCorrect) / totalNegativeExamples
+            
+            overallAccuracy = 0
+            if totalPositiveExamples + totalNegativeExamples > 0:
+                overallAccuracy = float(totalPositiveCorrect + totalNegativeCorrect) / (totalPositiveExamples + totalNegativeExamples)
+            
             log("Validation Total: %i / %i correct positives (%f), %i / %i correct negatives (%f), %i / %i correct overall (%f)" % (
-                totalPositiveCorrect, totalPositiveExamples,float(totalPositiveCorrect) / totalPositiveExamples,
-                totalNegativeCorrect, totalNegativeExamples, float(totalNegativeCorrect) / totalNegativeExamples,
+                totalPositiveCorrect, totalPositiveExamples, positiveAccuracy,
+                totalNegativeCorrect, totalNegativeExamples, negativeAccuracy,
                 totalPositiveCorrect + totalNegativeCorrect, totalPositiveExamples + totalNegativeExamples,
-                float(totalPositiveCorrect + totalNegativeCorrect) / (totalPositiveExamples + totalNegativeExamples)))
+                overallAccuracy))
         
         log("Parsing training data")
 

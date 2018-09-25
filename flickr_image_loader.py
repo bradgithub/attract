@@ -85,15 +85,14 @@ class FlickrImageLoader:
             
             try:
                 json = getJson(url)
-                
+                                
                 pages = int(json["photos"]["pages"])
-                perPage = int(json["photos"]["perpage"])
-            
                 pages = np.arange(pages)
+                
                 ids = {}
                 finished = False
                 for page in pages:
-                    url = makeFlickrSearchUrl(query, groupId, page)
+                    url = makeFlickrSearchUrl(query, groupId, page + 1)
 
                     try:
                         pageJson = getJson(url)
@@ -103,6 +102,7 @@ class FlickrImageLoader:
                             
                             if len(ids) == maxImagesPerCategory * 3:
                                 finished = True
+                                
                                 break
                             
                     except Exception:
@@ -116,6 +116,7 @@ class FlickrImageLoader:
                     np.random.shuffle(ids)
                     
                 return ids
+            
             except Exception:
                 return []
 

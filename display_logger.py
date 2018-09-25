@@ -13,7 +13,7 @@ class DisplayLogger:
         maxY = int(screenHeight * 0.95)
         
         fontSize = 20
-        fontColor = pygame.Color("white")
+        fontColor = (102, 255, 102)
         font = pygame.font.Font("NotoSansMono-Light.ttf", fontSize)
 
         spaceWidth = font.size(" ")[0]
@@ -69,7 +69,7 @@ class DisplayLogger:
                     x = x + wordWidth + spaceWidth
                     
                 x = minX
-                y = y + wordHeight * 2
+                y = y + wordHeight * 1.5
 
                 if y > maxY - wordHeight:
                     break

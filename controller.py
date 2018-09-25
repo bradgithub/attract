@@ -47,7 +47,9 @@ class Controller:
             if self.parameters["randomizeImages"] == 0:
                 randomize = False
                 
-            maxImagesPerCategory = self.parameters["randomizeImages"]
+            maxImagesPerCategory = self.parameters["maxImagesPerCategory"]
+            
+            log("Starting image loader...")
             
             self.imageLoader = FlickrImageLoader(searchQueries,
                                                  groupIds,
@@ -56,6 +58,8 @@ class Controller:
                                                  log)
         
         def getSounds():
+            log("Creating sounds...")
+
             soundLengthSeconds = 2
             audioSampleFrequency = 11025
 
@@ -85,29 +89,33 @@ class Controller:
             return sounds
 
         def getClassifier():
-            trainingDataFile = open("dual1.csv", "rb")
-            reader = csv.reader(trainingDataFile,
-                                delimiter=",", quoting=csv.QUOTE_NONE)
-            records = []
-            for row, record in enumerate(reader):
-                records.append(record)
+            if not (self.parameters["trainingDataFilename"] is None) and len(self.parameters["trainingDataFilename"]) > 0:
+                log("Loading training data file " + self.parameters["trainingDataFilename"])
+                
+                trainingDataFile = open(self.parameters["trainingDataFilename"], "rb")
+                reader = csv.reader(trainingDataFile,
+                                    delimiter=",", quoting=csv.QUOTE_NONE)
+                records = []
+                for row, record in enumerate(reader):
+                    records.append(record)
 
-            trainingDataFile.close()
-                                
-            c = Classifier(records,
-                           screenWidth,
-                           screenHeight,
-                           True,
-                           infoCallback=log)
+                trainingDataFile.close()
+                                    
+                useDualMode = self.parameters["mode"] == DUAL
+                
+                log("Loading and verifying classifier...")
+                
+                self.classifier = Classifier(records,
+                                             screenWidth,
+                                             screenHeight,
+                                             useDualMode,
+                                             infoCallback=log)
             
         def setup():
-            log("Creating sounds...")
             getSounds()
             
-            log("Loading and verifying classifier...")
             getClassifier()
             
-            log("Starting image loader...")
             getImageLoader()
 
         getParameters()

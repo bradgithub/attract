@@ -46,7 +46,7 @@ class Display:
                         
                     text = "\n".join(output)
 
-                    screen.fill((0, 0, 0))
+                    screen.fill((40, 40, 40))
                     displayLogger.render(text)
                 
                 pygame.display.flip()
