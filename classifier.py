@@ -233,7 +233,7 @@ if __name__ == "__main__":
     def log(message):
         print(message)
 
-    trainingDataFile = open("train.csv", "rb")
+    trainingDataFile = open("dual2.csv", "rb")
     reader = csv.reader(trainingDataFile,
                         delimiter=",", quoting=csv.QUOTE_NONE)
     records = []
@@ -245,5 +245,5 @@ if __name__ == "__main__":
     c = Classifier(records,
                     1080,
                     1920,
-                    False,
+                    True,
                     infoCallback=log)
