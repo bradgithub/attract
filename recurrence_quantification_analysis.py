@@ -12,22 +12,39 @@ class RecurrenceQuantificationAnalysis:
         self._verticalLineFrequency = {}
         self._horizontalLineFrequency = {}
 
-        indexedXyPoints = self._indexXyPoints(xyPoints)
-        self._setRecurrencePoints(indexedXyPoints, recurrenceRadius)
-        self._setRecurrenceLineFrequencies(minimumLineLength)
+        self._recurrenceCount = 0.0
+        self._recurrenceRate = 0.0
+        self._determinism = 0.0
+        self._laminarity = 0.0
+        self._predictabilityTime = 0.0
+        self._trappingTime = 0.0
+        self._divergence = 0.0
+        self._entropy = 0.0
+        self._maxFixationTime = 0.0
+        self._mostVisitedArea = 0.0
+        self._gazePathLengthMean = 0.0
+        self._gazePathLengthStdDev = 0.0
+        self._centerOfRecurrenceMass = 0.0
 
-        self._calculateRecurrenceCount()
-        self._calculateRecurrenceRate()
-        self._calculateDeterminism()
-        self._calculateLaminarity()
-        self._calculatePredictabilityTime()
-        self._calculateTrappingTime()
-        self._calculateDivergence()
-        self._calculateEntropy()
-        
-        self._calculateMostVisitedArea(indexedXyPoints, mostVisitedAreaRadius)
-        
-        self._calculateGazePathLength(xyPoints)
+        if self._N > 1:
+            indexedXyPoints = self._indexXyPoints(xyPoints)
+            self._setRecurrencePoints(indexedXyPoints, recurrenceRadius)
+            
+            if self._recurrencePoints > 0:
+                self._setRecurrenceLineFrequencies(minimumLineLength)
+                
+                self._calculateRecurrenceCount()
+                self._calculateRecurrenceRate()
+                self._calculateDeterminism()
+                self._calculateLaminarity()
+                self._calculatePredictabilityTime()
+                self._calculateTrappingTime()
+                self._calculateDivergence()
+                self._calculateEntropy()
+                
+                self._calculateMostVisitedArea(indexedXyPoints, mostVisitedAreaRadius)
+                
+                self._calculateGazePathLength(xyPoints)
                 
     def getFeatures(self):
         return (
@@ -77,7 +94,12 @@ class RecurrenceQuantificationAnalysis:
                     break
                 j = j + 1
             i = i + 1
-        self._centerOfRecurrenceMass = float(centerOfRecurrenceMass) / (self._N - 1) / len(self._recurrencePoints)
+
+        if self._recurrencePoints > 0:
+            self._centerOfRecurrenceMass = float(centerOfRecurrenceMass) / (self._N - 1) / len(self._recurrencePoints)
+        
+        else:
+            self._centerOfRecurrenceMass = 0.0
 
     def _setRecurrenceLineFrequencies(self,
                                       minimumLineLength):
@@ -161,7 +183,12 @@ class RecurrenceQuantificationAnalysis:
         for count in self._diagonalLineFrequency:
             numerator = numerator + count * self._diagonalLineFrequency[count]
             denominator = denominator + self._diagonalLineFrequency[count]
-        self._predictabilityTime = float(numerator) / denominator
+        
+        if denominator == 0:
+            self._predictabilityTime = 0.
+        
+        else:
+            self._predictabilityTime = float(numerator) / denominator
 
     def _calculateTrappingTime(self):
         numerator = 0
@@ -172,14 +199,24 @@ class RecurrenceQuantificationAnalysis:
         for count in self._horizontalLineFrequency:
             numerator = numerator + count * self._horizontalLineFrequency[count]
             denominator = denominator + self._horizontalLineFrequency[count]
-        self._trappingTime = float(numerator) / denominator
+            
+        if denominator == 0:
+            self._trappingTime = 0.
+            
+        else:
+            self._trappingTime = float(numerator) / denominator
 
     def _calculateDivergence(self):
         maxDiagonalCount = 1
         for count in self._diagonalLineFrequency:
             if count > maxDiagonalCount:
                 maxDiagonalCount = count
-        self._divergence = 1.0 / maxDiagonalCount
+                
+        if maxDiagonalCount == 0:
+            self._divergence = 0.
+            
+        else:
+            self._divergence = 1.0 / maxDiagonalCount
 
     def _calculateEntropy(self):
         countSum = 0.0
@@ -229,4 +266,9 @@ class RecurrenceQuantificationAnalysis:
                 lengthMean = newLengthMean
             i = i + 1
         self._gazePathLengthMean = lengthMean
-        self._gazePathLengthStdDev = np.sqrt(lengthVariance / (i - 2))
+        
+        if i > 2:
+            self._gazePathLengthStdDev = np.sqrt(lengthVariance / (i - 2))
+        
+        else:
+            self._gazePathLengthStdDev = 0.

@@ -11,7 +11,7 @@ class Classifier:
                  screenWidth,
                  screenHeight,
                  useDualMode,
-                 verificationTrials = 5,
+                 verificationTrials = 10,
                  recurrenceRadiusScreenFraction = 0.1,
                  mostVisitedAreaRadiusScreenFraction = 0.2,
                  useGazeFractionFeature = False,
@@ -82,6 +82,9 @@ class Classifier:
             lastId = None
             lastRecord = None
             
+            recordsX = []
+            recordsy = []
+            
             for record in trainingData:
                 classId = int(record[0])
                 recordId = int(record[1])
@@ -97,27 +100,38 @@ class Classifier:
                     lastRecord = [ (x, y) ]
                     
                     if classId == 1:
-                        trainX.append(lastRecord)
-                        trainy.append(1)
+                        recordsX.append(lastRecord)
+                        recordsy.append(1)
                         
                     elif classId == 0:
-                        trainX.append(lastRecord)
-                        trainy.append(0)
+                        recordsX.append(lastRecord)
+                        recordsy.append(0)
 
             i = 0
-            while i < len(trainX):
+            while i < len(recordsX):
                 if useDualMode:
-                    trainX[i] = getDualModeFeatures(trainX[i])
+                    featureSet = getDualModeFeatures(recordsX[i])
+                    
+                    trainX.append(featureSet[0])
+                    trainX.append(featureSet[1])
+                    
+                    trainy.append(recordsy[i])
+                    trainy.append(1 - recordsy[i])
                     
                 else:
-                    trainX[i] = getSingleModeFeatures(trainX[i])
+                    features = getSingleModeFeatures(recordsX[i])
                     
-                # print(trainX[i])
-                print(trainy[i])
+                    trainX.append(features)
+                    trainy.append(recordsy[i])
                     
                 i = i + 1
                         
         def verify():
+            totalPositiveCorrect = 0
+            totalPositiveExamples = 0
+            totalNegativeCorrect = 0
+            totalNegativeExamples = 0
+            
             for trialId in np.arange(verificationTrials):
                 indices = np.arange(len(trainX))
                 np.random.shuffle(indices)
@@ -168,19 +182,39 @@ class Classifier:
                             positiveCorrect = positiveCorrect + 1
                             
                     j = j + 1
+                    
+                totalPositiveCorrect = totalPositiveCorrect + positiveCorrect
+                totalPositiveExamples = totalPositiveExamples + positiveExamples
+                totalNegativeCorrect = totalNegativeCorrect + negativeCorrect
+                totalNegativeExamples = totalNegativeExamples + negativeExamples
                 
-                log("Trial %i: %i / %i correct positives (%f), %i / %i correct negatives (%f), %i / %i correct overall (%f)" % (
-                    trialId,
+                log("Validation Trial %i: %i / %i correct positives (%f), %i / %i correct negatives (%f), %i / %i correct overall (%f)" % (
+                    trialId + 1,
                     positiveCorrect, positiveExamples,float(positiveCorrect) / positiveExamples,
                     negativeCorrect, negativeExamples, float(negativeCorrect) / negativeExamples,
                     positiveCorrect + negativeCorrect, positiveExamples + negativeExamples,
                     float(positiveCorrect + negativeCorrect) / (positiveExamples + negativeExamples)))
 
+            log("Validation Total: %i / %i correct positives (%f), %i / %i correct negatives (%f), %i / %i correct overall (%f)" % (
+                totalPositiveCorrect, totalPositiveExamples,float(totalPositiveCorrect) / totalPositiveExamples,
+                totalNegativeCorrect, totalNegativeExamples, float(totalNegativeCorrect) / totalNegativeExamples,
+                totalPositiveCorrect + totalNegativeCorrect, totalPositiveExamples + totalNegativeExamples,
+                float(totalPositiveCorrect + totalNegativeCorrect) / (totalPositiveExamples + totalNegativeExamples)))
+        
+        log("Parsing training data")
+
         parseTrainingData()
+
+        log("Verifying training data")
+        
         verify()
 
+        log("Finalizing classifier")
+        
         gbc = GradientBoostingClassifier()
         gbc.fit(trainX, trainy)
+
+        log("Classifier ready")
         
         def classify(records):
             xyPoints = []
@@ -233,7 +267,7 @@ if __name__ == "__main__":
     def log(message):
         print(message)
 
-    trainingDataFile = open("dual2.csv", "rb")
+    trainingDataFile = open("dual1.csv", "rb")
     reader = csv.reader(trainingDataFile,
                         delimiter=",", quoting=csv.QUOTE_NONE)
     records = []
