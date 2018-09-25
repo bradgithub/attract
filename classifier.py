@@ -233,35 +233,56 @@ class Classifier:
             return gbc.predict([ features ])[0]
         
         self.classify = classify
+
+class Records:
+    def __init__():
+        data = [ [] ]
         
-    def createRecord(self,
-                     xPercentage,
-                     yPercentage):
-        return (
-            float(xPercentage),
-            float(yPercentage),
-            time.time()
-        )
-    
-    def compileRecords(self,
-                       classId,
-                       recordId,
-                       records):
-        classId = str(classId)
-        recordId = str(recordId)
-
-        output = []
-
-        for record in records:
-           output.append((
-               classId,
-               recordId,
-               str(record[2]),
-               str(record[0]),
-               str(record[1])
+        def clear():
+            data[0] = []
+        
+        def count():
+            return len(data[0])
+        
+        def append(xPercentage,
+                   yPercentage):
+            data[0].append((
+                float(xPercentage),
+                float(yPercentage),
+                time.time()
             ))
+            
+        def get():
+            return data[0]
+        
+        def save(classId,
+                 outputFilename):
+            classId = str(classId)
+            recordId = str(time.now())
+            
+            output = []
+
+            for record in data[0]:
+                record = (
+                    classId,
+                    recordId,
+                    str(record[2]),
+                    str(record[0]),
+                    str(record[1])
+                    )
+                record = ",".join(record)
+                output.append(record)
            
-        return output
+            output = "\n".join(output)
+    
+            with open(outputFilename, "a") as outputFile:
+                outputFile.write(output + "\n")
+                
+        self.clear = clear
+        self.count = count
+        self.append = append
+        self.get = get
+        self.save = save
 
 if __name__ == "__main__":
     def log(message):
