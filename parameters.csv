@@ -6,5 +6,5 @@ maxImagesPerCategory = 20
 randomizeImages = 1
 mode = single
 nonArousalGroupId = 
-trainingDataFilename = 
+trainingDataFilename = /home/toor/Projects/attract/train.csv
 arousalGroupId = 

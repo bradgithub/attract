@@ -1,14 +1,17 @@
 import pygame
 from Tkinter import Tk
+from threading import Thread
+import numpy as np
+import math
+import csv
+
 from setup_panel import SetupPanel, SINGLE, DUAL, COMPETITION
 from flickr_image_loader import FlickrImageLoader
-from recurrence_quantification_analysis import RecurrenceQuantificationAnalysis
+from classifier import Classifier
+from display import Display
 
 class Controller:
     def __init__(self):
-        def log(message):
-            print(message)
-        
         def getParameters():
             root = Tk()
             root.title("Arousal Predictor")
@@ -22,8 +25,6 @@ class Controller:
 
             self.parameters = setupPanel.parameters
             
-            log(parameters)
-            
         def getImageLoader():
             searchQueries = [
                 self.parameters["arousalQuery"]
@@ -36,7 +37,7 @@ class Controller:
             if len(self.parameters["arousalGroupId"]) > 0:
                 groupIds[0] = self.parameters["arousalGroupId"]
             
-            if self.parameters.mode == SINGLE or self.parameters.mode == DUAL:
+            if self.parameters["mode"] == SINGLE or self.parameters["mode"] == DUAL:
                 searchQueries.append(self.parameters["nonArousalQuery"])
                 groupIds.append(None)
                 if len(self.parameters["nonArousalGroupId"]) > 0:
@@ -49,21 +50,23 @@ class Controller:
             maxImagesPerCategory = self.parameters["randomizeImages"]
             
             self.imageLoader = FlickrImageLoader(searchQueries,
-                                            groupIds,
-                                            randomize,
-                                            maxImagesPerCategory,
-                                            log)
+                                                 groupIds,
+                                                 randomize,
+                                                 maxImagesPerCategory,
+                                                 log)
         
         def getSounds():
             soundLengthSeconds = 2
             audioSampleFrequency = 11025
 
-            sounds = []
             amplitude = 4096.0
-            tmp = np.zeros((length, 2), dtype = np.int16)
             sampleLength = int(audioSampleFrequency * soundLengthSeconds)
+            
+            tmp = np.zeros((sampleLength, 2), dtype = np.int16)
 
             pygame.mixer.init(audioSampleFrequency, -16, 2)
+            
+            sounds = []
             
             for toneFrequency in [ 440.00, 523.25 ]:
                 x = 0
@@ -81,8 +84,6 @@ class Controller:
             
             return sounds
 
-            
-        
         def getClassifier():
             trainingDataFile = open("dual1.csv", "rb")
             reader = csv.reader(trainingDataFile,
@@ -94,8 +95,36 @@ class Controller:
             trainingDataFile.close()
                                 
             c = Classifier(records,
-                            1080,
-                            1920,
-                            True,
-                            infoCallback=log)
+                           screenWidth,
+                           screenHeight,
+                           True,
+                           infoCallback=log)
             
+        def setup():
+            log("Creating sounds...")
+            getSounds()
+            
+            log("Loading and verifying classifier...")
+            getClassifier()
+            
+            log("Starting image loader...")
+            getImageLoader()
+
+        getParameters()
+        
+        display = Display()
+        
+        log = display.log
+        screenWidth = display.screenWidth
+        screenHeight = display.screenHeight
+        
+        setupThread = Thread(target=setup,
+                             name="Setup thread",
+                             args=[])
+        setupThread.daemon = True
+        setupThread.start()
+
+        display.mainloop()
+
+if __name__ == "__main__":
+    Controller()
