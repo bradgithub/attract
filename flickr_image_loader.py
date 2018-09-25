@@ -14,17 +14,16 @@ class FlickrImageLoader:
                  randomize,
                  maxImagesPerCategory,
                  infoCallback):
-        self._images = []
-        self._lastImageChoices = []
-
         if searchQueries is None or len(searchQueries) == 0:
             return
         
-        self._lock = Lock()
+        images = []
+        lastImageChoices = []
+        lock = Lock()
         
         for i in range(len(searchQueries)):
-            self._images.append([])
-            self._lastImageChoices.append(None)
+            images.append([])
+            lastImageChoices.append(None)
                 
         def log(message):
             if not (infoCallback is None):
@@ -160,16 +159,15 @@ class FlickrImageLoader:
             log("Retrieving images")
             urlsToLoad.sort(key=lambda x: (x[0], x[1]))
             for urlToLoad in urlsToLoad:
-                if len(self._images[urlToLoad[1]]) < maxImagesPerCategory:
+                if len(images[urlToLoad[1]]) < maxImagesPerCategory:
                     url = getFlickrImageUrl(urlToLoad[2])
 
                     if not (url is None):
                         image = loadImageUrl(url)
                         if not (image is None):
                             log("Retrieved category " + str(urlToLoad[1]) + " image url " + url)
-                            self._lock.acquire()
-                            self._images[urlToLoad[1]].append(image)
-                            self._lock.release()
+                            with lock:
+                                images[urlToLoad[1]].append(image)
 
         loaderThread = Thread(target=loader,
                               name="Image loader thread",
@@ -177,30 +175,33 @@ class FlickrImageLoader:
         loaderThread.daemon = True
         loaderThread.start()
 
-    def getImage(self,
-                 category,
-                 width,
-                 height):
-        image = None
-        self._lock.acquire()
-        try:
-            images = self._images[category]
-            imageIds = range(len(images))
-            np.random.shuffle(imageIds)
-            imageId = None
-            for imageId in imageIds:
-                if len(imageIds) == 1 or not (imageId == self._lastImageChoices[category]):
-                    break
-            self._lastImageChoices[category] = imageId
-            if not (imageId is None):
-                image = images[imageId]
-                if not (width == image.get_width()) or not (height == image.get_height()):
-                    image = pygame.transform.smoothscale(image, (width, height))
-                    images[imageId] = image
-        except Exception:
+        def getImage(category,
+                    width,
+                    height):
             image = None
-        self._lock.release()
-        return image
+            
+            with lock:
+                try:
+                    _images = images[category]
+                    imageIds = range(len(_images))
+                    np.random.shuffle(imageIds)
+                    imageId = None
+                    for imageId in imageIds:
+                        if len(imageIds) == 1 or not (imageId == lastImageChoices[category]):
+                            break
+                    lastImageChoices[category] = imageId
+                    if not (imageId is None):
+                        image = _images[imageId]
+                        if not (width == image.get_width()) or not (height == image.get_height()):
+                            image = pygame.transform.smoothscale(image, (width, height))
+                            _images[imageId] = image
+                            
+                except Exception:
+                    image = None
+
+            return image
+        
+        self.getImage = getImage
             
 if __name__ == "__main__":
     def log(message):
