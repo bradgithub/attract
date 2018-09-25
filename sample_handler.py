@@ -1,19 +1,23 @@
 import time
 from collections import deque
-from threading import Lock, Event
 from classifier import Records
 
 class SampleHandler:
     def __init__(self,
+                 requiredRecordsCount,
                  smoothingWindowLength=5,
                  smoothingFactor=10.0):
-        self.lock = Lock()
-        self.gazePoint = None
+        gazePoint = [ None ]
+        recordsFull = [ False ]
+        readyToRecord = [ False ]
                 
         xySmoothingWindow = deque()
         records = Records()
         
-        def handle(sample)
+        def handleSample(sample)
+            if not readyToRecord[0]:
+                return
+            
             if sample["LPOGV"] == "1" and sample["RPOGV"] == "1" and sample["LPV"] == "1" and sample["RPV"] == "1":
                 xl = float(sample["LPOGX"])
                 yl = float(sample["LPOGY"])
@@ -37,21 +41,47 @@ class SampleHandler:
                             
                     xySmoothingWindow.append((x, y))
                     x, y = np.mean(xySmoothingWindow, 0)
-                  
-                    with self.lock:
-                        self.gazePoint = (x, y)
+                    gazePoint[0] = (x, y)
 
                 else:
                     xySmoothingWindow.clear()
-
-                    with self.lock:
-                        self.gazePoint = None
+                    gazePoint[0] = None
                     
             else:
                 xySmoothingWindow.clear()
+                gazePoint[0] = None
+                    
+            if records.count() == requiredRecordsCount:
+                gazePoint = [ None ]
+                recordsFull[0] = True
+                readyToRecord[0] = [ False ]
 
-                with self.lock:
-                    self.gazePoint = None
+        def saveRecords(classId,
+                        outputFilename):
+            if recordsFull[0]:
+                records.save(classId, outputFilename)
+        
+        def getRecords():
+            if recordsFull[0]:
+                return records.get()
                 
-        def 
-# after handle, check records count and if full, don't log anymore and set a flag for main thread to log and clear/restart logging
+            else:
+                return None
+            
+        def isRecordsFull():
+            return recordsFull[0]
+       
+        def getGazePoint():
+            return gazePoint[0]
+       
+        def startLogging():
+            recordsFull[0] = False
+            records.clear()
+            readyToRecord[0] = [ True ]
+
+        self.handleSample = handleSample
+        self.saveRecords = saveRecords
+        self.getRecords = getRecords
+        self.isRecordsFull = isRecordsFull
+        self.getGazePoint = getGazePoint
+        self.startLogging = startLogging

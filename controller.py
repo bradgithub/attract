@@ -1,3 +1,4 @@
+import pygame
 from Tkinter import Tk
 from setup_panel import SetupPanel, SINGLE, DUAL, COMPETITION
 from flickr_image_loader import FlickrImageLoader
@@ -23,7 +24,7 @@ class Controller:
             
             log(parameters)
             
-        def imageLoader():
+        def getImageLoader():
             searchQueries = [
                 self.parameters["arousalQuery"]
             ]
@@ -47,9 +48,54 @@ class Controller:
                 
             maxImagesPerCategory = self.parameters["randomizeImages"]
             
-            imageLoader = FlickrImageLoader(searchQueries,
+            self.imageLoader = FlickrImageLoader(searchQueries,
                                             groupIds,
                                             randomize,
                                             maxImagesPerCategory,
                                             log)
         
+        def getSounds():
+            soundLengthSeconds = 2
+            audioSampleFrequency = 11025
+
+            sounds = []
+            amplitude = 4096.0
+            tmp = np.zeros((length, 2), dtype = np.int16)
+            sampleLength = int(audioSampleFrequency * soundLengthSeconds)
+
+            pygame.mixer.init(audioSampleFrequency, -16, 2)
+            
+            for toneFrequency in [ 440.00, 523.25 ]:
+                x = 0
+                while x < sampleLength:
+                    value = amplitude * np.sin(x * toneFrequency / audioSampleFrequency * 2 * math.pi)
+           
+                    tmp[x][0] = value
+                    tmp[x][1] = value
+                    
+                    x = x + 1
+                
+                sound = pygame.sndarray.array(tmp)
+                sound = pygame.sndarray.make_sound(sound)
+                sounds.append(sound)
+            
+            return sounds
+
+            
+        
+        def getClassifier():
+            trainingDataFile = open("dual1.csv", "rb")
+            reader = csv.reader(trainingDataFile,
+                                delimiter=",", quoting=csv.QUOTE_NONE)
+            records = []
+            for row, record in enumerate(reader):
+                records.append(record)
+
+            trainingDataFile.close()
+                                
+            c = Classifier(records,
+                            1080,
+                            1920,
+                            True,
+                            infoCallback=log)
+            

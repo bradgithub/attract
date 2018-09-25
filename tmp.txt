@@ -1,0 +1,141 @@
+
+
+        
+    
+    image = None
+    lrimages = None
+    
+    while True:
+        toggleSemaphore.acquire()
+        
+        if toggleEvent.isSet():
+            toggleEvent.clear()
+            screenReady.clear()
+            toggleSemaphore.release()
+
+            screen.fill((0, 0, 0))
+            pygame.display.flip()
+
+            if sequenceTaskMode:
+                imageClass = np.random.choice([ 0, 1 ])
+                if len(imageUrls[imageClass]) == 0:
+                    imagePath = np.random.choice(imageLists[imageClass])
+                    if not (imagePath in images[imageClass]):
+                        image = pygame.image.load(imagePath)
+                        image = pygame.transform.smoothscale(image, (width, height))
+                        images[imageClass][imagePath] = image
+                    else:
+                        image = images[imageClass][imagePath]
+                else:
+                    imageUrl = np.random.choice(imageUrls[imageClass])
+                    if not (imageUrl in images[imageClass]):
+                        image = urllib.urlopen(imageUrl).read()
+                        image = io.BytesIO(image)
+                        image = pygame.image.load(image)
+                        image = pygame.transform.smoothscale(image, (width, height))
+                        images[imageClass][imageUrl] = image
+                    else:
+                        image = images[imageClass][imageUrl]
+                        
+            else:
+                imageClass = np.random.choice([ 0, 1 ])
+                lrimages = []
+                for imageClass_ in [ 1 - imageClass, imageClass ]:
+                    if len(imageUrls[imageClass_]) == 0:
+                        imagePath = np.random.choice(imageLists[imageClass_])
+                        if not (imagePath in images[imageClass_]):
+                            image = pygame.image.load(imagePath)
+                            image = pygame.transform.smoothscale(image, (int(width / 3.0), int(height * 5 / 6.0)))
+                            images[imageClass_][imagePath] = image
+                        else:
+                            image = images[imageClass_][imagePath]
+                    else:
+                        imageUrl = np.random.choice(imageUrls[imageClass_])
+                        if not (imageUrl in images[imageClass_]):
+                            image = urllib.urlopen(imageUrl).read()
+                            image = io.BytesIO(image)
+                            image = pygame.image.load(image)
+                            image = pygame.transform.smoothscale(image, (int(width / 3.0), int(height * 5 / 6.0)))
+                            images[imageClass_][imageUrl] = image
+                        else:
+                            image = images[imageClass_][imageUrl]
+                    lrimages.append(image)
+            
+        else:
+            toggleSemaphore.release()
+                    
+        toggleSemaphore.acquire()
+        
+        leftHighlight = False
+        rightHighlight = False
+        if not (gazePointXY is None) and drawGazePointEvent.isSet():
+            x, y = gazePointXY
+            
+            if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                if not pauseEvent.isSet():
+                    if x < 0.5:
+                        leftHighlight = True
+                    else:
+                        rightHighlight = True
+                        
+        if not (lrimages is None):
+            combinedImage = pygame.Surface((width, height))
+            combinedImage.fill((0, 0, 0))
+            if leftHighlight:
+                combinedImage.blit(highlightImage, (0, 0))
+            elif rightHighlight:
+                combinedImage.blit(highlightImage, (int(width / 2.0), 0))
+            combinedImage.blit(lrimages[0], (int(width / 12.0), int(height / 12.0)))
+            combinedImage.blit(lrimages[1], (int(width * 7.0 / 12.0), int(height / 12.0)))
+            image = combinedImage
+        
+        if not (image is None):
+            screen.blit(image, (0,0))
+            
+        if not (gazePointXY is None) and drawGazePointEvent.isSet():
+            x, y = gazePointXY
+            
+            if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+                x = int(x * width)
+                y = int(y * height)
+                if pauseEvent.isSet():
+                    pygame.draw.circle(screen, red, (x, y), radius, 3)
+                    
+                elif saccadeEvent.isSet():
+                    pygame.draw.circle(screen, green, (x, y), radius, 3)
+                    #pygame.draw.circle(screen, yello, (x, y), radius, 3)
+                    saccadeEvent.clear()
+                
+                else:
+                    pygame.draw.circle(screen, green, (x, y), radius, 3)            
+                #pygame.draw.circle(screen, white, (x, y), radius, 2)
+            
+        pygame.display.flip()
+
+        toggleEvent.clear()
+        screenReady.set()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    print("exiting...")
+                    sys.exit(0)
+                    
+                elif event.key == pygame.K_RETURN:
+                    if drawGazePointEvent.isSet():
+                        drawGazePointEvent.clear()
+                    else:
+                        drawGazePointEvent.set()
+                    
+            elif event.type == pygame.QUIT:
+                print("exiting...")
+                sys.exit(0)
+
+        toggleSemaphore.release()
+        
+        pygame.time.delay(100)
+    
+    print("exiting...")
+    sys.exit(0)
+    
+    #playerThread.start()
