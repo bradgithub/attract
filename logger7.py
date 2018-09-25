@@ -43,6 +43,8 @@ root.wm_attributes("-topmost", 1)
 root.focus_force()
 root.mainloop()
 
+parameters = setupPanel.parameters
+
 trainingDataFileName = setupPanel.trainingDataFilename
 saveDataFilename = setupPanel.saveDataFilename
 positiveQueryString = setupPanel.arousalQuery

@@ -2,6 +2,7 @@ saveDataFilename =
 useGazeFractionFeature = 0
 nonArousalQuery = britney spears
 arousalQuery = christina aguilera
+maxImagesPerCategory = 20
 randomizeImages = 1
 mode = single
 nonArousalGroupId = 

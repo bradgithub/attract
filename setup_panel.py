@@ -6,8 +6,6 @@ import re
 SINGLE = "single"
 DUAL = "dual"
 COMPETITION = "competition"
-TRUE = "1"
-FALSE = "0"
 
 class SetupPanel():
     def __init__(self, parent):
@@ -20,6 +18,7 @@ class SetupPanel():
             "nonArousalGroupId": "",
             "randomizeImages": "1",
             "useGazeFractionFeature": "0",
+            "maxImagesPerCategory": "",
             "mode": ""
         }
 
@@ -85,8 +84,15 @@ class SetupPanel():
             self.parameters["nonArousalQuery"] = entryNegativeQuery.get()
             self.parameters["arousalGroupId"] = entryPositiveGroupId.get()
             self.parameters["nonArousalGroupId"] = entryNegativeGroupId.get()
-            self.parameters["randomizeImages"] = randomizeValue.get()
-            self.parameters["useGazeFractionFeature"] = gazeFractionValue.get()
+            self.parameters["randomizeImages"] = int(randomizeValue.get())
+            self.parameters["useGazeFractionFeature"] = int(gazeFractionValue.get())
+            try:
+                self.parameters["maxImagesPerCategory"] = int(entryMaxImagesPerCategory.get())
+            except Exception:
+                self.parameters["maxImagesPerCategory"] = 10
+            
+            if self.parameters["maxImagesPerCategory"] < 10:
+                self.parameters["maxImagesPerCategory"] = 10
             
         def saveParameters():
             with open("parameters.csv", "wb") as parametersFile:
@@ -200,6 +206,18 @@ class SetupPanel():
             gazeFractionValue.set(0)
         entryGazeFractionFeature = Checkbutton(container, onvalue=1, offvalue=0, variable=gazeFractionValue)
         entryGazeFractionFeature.grid(row=5, column=1, sticky=W)
+
+        
+        labelMaxImagesPerCategory = Label(container)
+        labelMaxImagesPerCategory["text"] = "Max images to retrieve per category:"
+        labelMaxImagesPerCategory["anchor"] = W
+        labelMaxImagesPerCategory.grid(row=6, column=0, sticky=W)
+        
+        entryMaxImagesPerCategory = Entry(container)
+        entryMaxImagesPerCategory["width"] = 5
+        entryMaxImagesPerCategory.insert(END, self.parameters["maxImagesPerCategory"])
+        entryMaxImagesPerCategory.grid(row=6, column=1, sticky=W, columnspan=2)
+        
     
         buttonStartSingleMode = Button(buttonContainer)
         buttonStartSingleMode["command"] = startSingleMode
