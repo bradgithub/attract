@@ -1,10 +1,11 @@
+nonArousalGroupId = 
+maxImagesPerCategory = 20
 saveDataFilename = 
-useGazeFractionFeature = 0
+randomizeImages = 1
 nonArousalQuery = britney spears
 arousalQuery = christina aguilera
-maxImagesPerCategory = 20
-randomizeImages = 1
-mode = single
-nonArousalGroupId = 
-trainingDataFilename = /home/toor/Projects/attract/train.csv
 arousalGroupId = 
+requiredSamplesPerTrial = 600
+mode = single
+useGazeFractionFeature = 0
+trainingDataFilename = /home/toor/Projects/attract/train.csv

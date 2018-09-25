@@ -9,9 +9,18 @@ from setup_panel import SetupPanel, SINGLE, DUAL, COMPETITION
 from flickr_image_loader import FlickrImageLoader
 from classifier import Classifier
 from display import Display
+from sample_handler import SampleHandler
 
 class Controller:
     def __init__(self):
+        self.classId = None
+        self.parameters = None
+        self.sounds = None
+        self.samplerHandler = None
+        self.classifier = None
+        self.imageLoader = None
+        self.imageUpdateNeeded = True
+        
         def getParameters():
             root = Tk()
             root.title("Arousal Predictor")
@@ -70,7 +79,7 @@ class Controller:
 
             pygame.mixer.init(audioSampleFrequency, -16, 2)
             
-            sounds = []
+            self.sounds = []
             
             for toneFrequency in [ 440.00, 523.25 ]:
                 x = 0
@@ -84,11 +93,12 @@ class Controller:
                 
                 sound = pygame.sndarray.array(tmp)
                 sound = pygame.sndarray.make_sound(sound)
-                sounds.append(sound)
-            
-            return sounds
+                
+                self.sounds.append(sound)
 
         def getClassifier():
+            self.classifier = None
+            
             if not (self.parameters["trainingDataFilename"] is None) and len(self.parameters["trainingDataFilename"]) > 0:
                 log("Loading training data file " + self.parameters["trainingDataFilename"])
                 
@@ -110,6 +120,32 @@ class Controller:
                                              screenHeight,
                                              useDualMode,
                                              infoCallback=log)
+                
+        def getSampleHandler():
+            self.samplerHandler = SampleHandler(self.parameters["requiredSamplesPerTrial"])
+            
+        def updateTrial():
+            if self.samplerHandler.isRecordsFull()
+                self.samplerHandler.saveRecords(self.classId, self.parameters["saveDataFilename"])
+                
+                if not (self.classifier is None):
+                    records = self.sampleHandler.getRecords()
+                    
+                    if not (records is None):
+                        if classifier.classify(records) is 1:
+                            sounds[1].play()
+                            
+                        else:
+                            sounds[0].play()
+                
+                self.imageUpdateNeeded = True
+                
+            if self.imageUpdateNeeded:
+                self.imageUpdateNeeded = False
+                
+                if self.parameters["mode"] == SINGLE:
+                    image = self.imageLoader.getImage(screenWidth, screenHeight)
+            
             
         def setup():
             getSounds()

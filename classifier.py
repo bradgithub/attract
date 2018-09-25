@@ -281,26 +281,27 @@ class Records:
         
         def save(classId,
                  outputFilename):
-            classId = str(classId)
-            recordId = str(time.now())
-            
-            output = []
+            if not (classId is None) and not (outputFilename is None) and len(outputFilename) > 0:
+                classId = str(classId)
+                recordId = str(time.now())
+                
+                output = []
 
-            for record in data[0]:
-                record = (
-                    classId,
-                    recordId,
-                    str(record[2]),
-                    str(record[0]),
-                    str(record[1])
+                for record in data[0]:
+                    record = (
+                        str(classId),
+                        str(recordId),
+                        str(record[2]),
+                        str(record[0]),
+                        str(record[1])
                     )
-                record = ",".join(record)
-                output.append(record)
-           
-            output = "\n".join(output)
-    
-            with open(outputFilename, "a") as outputFile:
-                outputFile.write(output + "\n")
+                    record = ",".join(record)
+                    output.append(record)
+            
+                output = "\n".join(output)
+        
+                with open(outputFilename, "a") as outputFile:
+                    outputFile.write(output + "\n")
                 
         self.clear = clear
         self.count = count

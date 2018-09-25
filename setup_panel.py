@@ -19,6 +19,7 @@ class SetupPanel():
             "randomizeImages": "1",
             "useGazeFractionFeature": "0",
             "maxImagesPerCategory": "",
+            "requiredSamplesPerTrial": "",
             "mode": ""
         }
 
@@ -86,6 +87,7 @@ class SetupPanel():
             self.parameters["nonArousalGroupId"] = entryNegativeGroupId.get()
             self.parameters["randomizeImages"] = int(randomizeValue.get())
             self.parameters["useGazeFractionFeature"] = int(gazeFractionValue.get())
+            
             try:
                 self.parameters["maxImagesPerCategory"] = int(entryMaxImagesPerCategory.get())
             except Exception:
@@ -94,6 +96,11 @@ class SetupPanel():
             if self.parameters["maxImagesPerCategory"] < 10:
                 self.parameters["maxImagesPerCategory"] = 10
             
+            try:
+                self.parameters["requiredSamplesPerTrial"] = int(entryRequiredSamplesPerTrial.get())
+            except Exception:
+                self.parameters["requiredSamplesPerTrial"] = 600
+
         def saveParameters():
             with open("parameters.csv", "wb") as parametersFile:
                 lines = []
@@ -217,6 +224,17 @@ class SetupPanel():
         entryMaxImagesPerCategory["width"] = 5
         entryMaxImagesPerCategory.insert(END, self.parameters["maxImagesPerCategory"])
         entryMaxImagesPerCategory.grid(row=6, column=1, sticky=W, columnspan=2)
+        
+    
+        labelRequiredSamplesPerTrial = Label(container)
+        labelRequiredSamplesPerTrial["text"] = "Required samples per trial:"
+        labelRequiredSamplesPerTrial["anchor"] = W
+        labelRequiredSamplesPerTrial.grid(row=7, column=0, sticky=W)
+        
+        entryRequiredSamplesPerTrial = Entry(container)
+        entryRequiredSamplesPerTrial["width"] = 5
+        entryRequiredSamplesPerTrial.insert(END, self.parameters["requiredSamplesPerTrial"])
+        entryRequiredSamplesPerTrial.grid(row=7, column=1, sticky=W, columnspan=2)
         
     
         buttonStartSingleMode = Button(buttonContainer)
