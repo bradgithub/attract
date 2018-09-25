@@ -1,9 +1,9 @@
 saveDataFilename = 
-useGazeFractionFeature = 
-nonArousalQuery = 
-arousalQuery = 
-randomizeImages = 0
+useGazeFractionFeature = 0
+nonArousalQuery = britney spears
+arousalQuery = christina aguilera
+randomizeImages = 1
 mode = single
 nonArousalGroupId = 
-trainingDataFilename = /home/toor/Projects/attract/train.csv
+trainingDataFilename = 
 arousalGroupId = 

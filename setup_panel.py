@@ -18,8 +18,8 @@ class SetupPanel():
             "nonArousalQuery": "",
             "arousalGroupId": "",
             "nonArousalGroupId": "",
-            "randomizeImages": "",
-            "useGazeFractionFeature": "",
+            "randomizeImages": "1",
+            "useGazeFractionFeature": "0",
             "mode": ""
         }
 
@@ -34,6 +34,8 @@ class SetupPanel():
                         
         except Exception:
             pass
+
+        self.parameters["mode"] = ""
 
         buttonWidth = 20
         labelWidth = 25
@@ -51,6 +53,15 @@ class SetupPanel():
             padx=framePadx,
             pady=framePady)    
 
+        buttonContainer = Frame(parent)
+        buttonContainer.pack(
+            ipadx=frameIpadx,
+            ipady=frameIpady,
+            padx=framePadx,
+            pady=framePady,
+            fill=X,
+            expand=YES)
+        
         def setTrainingDataFile():
             self.parameters["trainingDataFilename"] = askopenfilename(title="Open training data file",
                                                         filetypes=(("CSV files","*.csv"),("all files","*.*")))
@@ -117,7 +128,7 @@ class SetupPanel():
 
         labelTrainingData = Label(container)
         labelTrainingData["text"] = self.parameters["trainingDataFilename"]
-        labelTrainingData.grid(row=0, column=1)
+        labelTrainingData.grid(row=0, column=1, columnspan=2, sticky=W)
 
 
         buttonResponseData = Button(container)
@@ -128,7 +139,7 @@ class SetupPanel():
 
         labelResponseData = Label(container)
         labelResponseData["text"] = self.parameters["saveDataFilename"]
-        labelResponseData.grid(row=1, column=1, sticky=W)
+        labelResponseData.grid(row=1, column=1, columnspan=2, sticky=W)
 
 
         labelPositiveQuery = Label(container)
@@ -138,12 +149,12 @@ class SetupPanel():
 
         entryPositiveQuery = Entry(container)
         entryPositiveQuery["width"] = entryWidth
-        entryPositiveQuery["text"] = self.parameters["arousalQuery"]
+        entryPositiveQuery.insert(END, self.parameters["arousalQuery"])
         entryPositiveQuery.grid(row=2, column=1, sticky=W)
 
         entryPositiveGroupId = Entry(container)
         entryPositiveGroupId["width"] = int(entryWidth / 4.0)
-        entryPositiveGroupId["text"] = self.parameters["arousalGroupId"]
+        entryPositiveGroupId.insert(END, self.parameters["arousalGroupId"])
         entryPositiveGroupId.grid(row=2, column=2, sticky=W)
 
 
@@ -154,12 +165,12 @@ class SetupPanel():
 
         entryNegativeQuery = Entry(container)
         entryNegativeQuery["width"] = entryWidth
-        entryNegativeQuery["text"] = self.parameters["nonArousalQuery"]
+        entryNegativeQuery.insert(END, self.parameters["nonArousalQuery"])
         entryNegativeQuery.grid(row=3, column=1, sticky=W)
 
         entryNegativeGroupId = Entry(container)
         entryNegativeGroupId["width"] = int(entryWidth / 4.0)
-        entryNegativeGroupId["text"] = self.parameters["nonArousalGroupId"]
+        entryNegativeGroupId.insert(END, self.parameters["nonArousalGroupId"])
         entryNegativeGroupId.grid(row=3, column=2, sticky=W)
         
 
@@ -187,27 +198,26 @@ class SetupPanel():
             gazeFractionValue.set(1)
         else:
             gazeFractionValue.set(0)
-        entryGazeFractionFeature = Checkbutton(container, onvalue=1, offvalue=0, variable=randomizeValue)
+        entryGazeFractionFeature = Checkbutton(container, onvalue=1, offvalue=0, variable=gazeFractionValue)
         entryGazeFractionFeature.grid(row=5, column=1, sticky=W)
-
-        
-        buttonStartSingleMode = Button(container)
+    
+        buttonStartSingleMode = Button(buttonContainer)
         buttonStartSingleMode["command"] = startSingleMode
         buttonStartSingleMode["width"] = buttonWidth
         buttonStartSingleMode["text"]= "Start sequential mode" 
-        buttonStartSingleMode.grid(row=6, column=0)
+        buttonStartSingleMode.pack(side=LEFT)
         
-        buttonStartDualMode = Button(container)
+        buttonStartDualMode = Button(buttonContainer)
         buttonStartDualMode["command"] = startDualMode
         buttonStartDualMode["width"] = buttonWidth
         buttonStartDualMode["text"]= "Start parallel mode" 
-        buttonStartDualMode.grid(row=6, column=1)
+        buttonStartDualMode.pack(side=LEFT, expand=YES)
         
-        buttonStartCompetitionMode = Button(container)
+        buttonStartCompetitionMode = Button(buttonContainer)
         buttonStartCompetitionMode["command"] = startCompetitionMode
         buttonStartCompetitionMode["width"] = buttonWidth
         buttonStartCompetitionMode["text"]= "Start competition mode" 
-        buttonStartCompetitionMode.grid(row=6, column=2)
+        buttonStartCompetitionMode.pack(side=RIGHT)
         
 if __name__ == "__main__":
     root = Tk()
