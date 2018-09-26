@@ -8,10 +8,10 @@ class DisplayTrial:
         
         halfScreenWidth = int(screenWidth / 2.0);
         
-        white = pygame.Color(255, 255, 255, 255)
-        red = pygame.Color(255, 0, 0, 255)
-        green = pygame.Color(0, 255, 0, 255)
-        yellow = pygame.Color(255, 255, 0, 255)
+        white = pygame.Color(255, 255, 255)
+        red = pygame.Color(255, 0, 0)
+        green = pygame.Color(0, 255, 0)
+        yellow = pygame.Color(255, 255, 0)
         
         displayRadius = int(min(screenWidth, screenHeight) * 0.05)
         
@@ -64,7 +64,7 @@ class DisplayTrial:
                     
                 else:
                     image = imageData[0][0]
-                    
+                
                 screen.blit(image, (0, 0))
                 
                 if not (gazePoint[0] is None):
@@ -75,7 +75,7 @@ class DisplayTrial:
                     
                     pygame.draw.circle(screen, green, (x, y), displayRadius, 4)
                     pygame.draw.circle(screen, white, (x, y), displayRadius, 2)
-
+                
         self.setImage = setImage
         self.setGazePoint = setGazePoint
         self.render = render

@@ -32,17 +32,16 @@ class SampleHandler:
                             
                             records.append(x, y)
                 
-                            if True:
-                                if len(xySmoothingWindow) == smoothingWindowLength:
-                                    xMean, yMean = np.mean(xySmoothingWindow, 0)
-                                    xLim, yLim = np.std(xySmoothingWindow, 0) * smoothingFactor
-                                    xySmoothingWindow.popleft()
+                            if len(xySmoothingWindow) == smoothingWindowLength:
+                                xMean, yMean = np.mean(xySmoothingWindow, 0)
+                                xLim, yLim = np.std(xySmoothingWindow, 0) * smoothingFactor
+                                xySmoothingWindow.popleft()
+                                
+                                if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
+                                    xySmoothingWindow.clear()
                                     
-                                    if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
-                                        xySmoothingWindow.clear()
-                                        
-                                xySmoothingWindow.append((x, y))
-                                x, y = np.mean(xySmoothingWindow, 0)
+                            xySmoothingWindow.append((x, y))
+                            x, y = np.mean(xySmoothingWindow, 0)
                             
                             gazePoint[0] = (x, y)
 
