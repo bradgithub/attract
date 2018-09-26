@@ -99,7 +99,7 @@ class Display:
                         print("exiting...")
                         sys.exit(0)
             
-                pygame.time.delay(25)
+                pygame.time.delay(100)
                 
         self.log = log
         self.mainloop = mainloop
