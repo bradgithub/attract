@@ -9,8 +9,8 @@ class Display:
     def __init__(self):
         pygame.init()
 
-        #screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        screen = pygame.display.set_mode((1000, 1000))
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        #screen = pygame.display.set_mode((1000, 1000))
         self.screenWidth = screen.get_width()
         self.screenHeight = screen.get_height()
         
