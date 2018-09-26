@@ -13,6 +13,7 @@ from flickr_image_loader import FlickrImageLoader
 from classifier import Classifier
 from display import Display
 from sample_handler import SampleHandler
+from opengaze import OpenGazeTracker
 
 class Controller:
     def __init__(self):
@@ -134,6 +135,26 @@ class Controller:
         def getSampleHandler():
             self.samplerHandler = SampleHandler(self.parameters["requiredSamplesPerTrial"])
         
+            if False:
+                def fakeSampler():
+                    while True:
+                        sample = self.samplerHandler.getFakeSample()
+                        
+                        self.samplerHandler.handleSample(sample)
+                        
+                        #pygame.time.delay(16)
+                        time.sleep(0.016)
+                        
+                sampleThread = Thread(target=fakeSampler,
+                                    name="Fake sampler thread",
+                                    args=[])
+                sampleThread.daemon = True
+                sampleThread.start()
+            
+            else:
+                gazeTracker = OpenGazeTracker(self.samplerHandler.handleSample)
+                gazeTracker.start_recording()
+            
         def requestImageUpdate():
             self.imageUpdateNeeded = True
         
@@ -182,7 +203,9 @@ class Controller:
                 self.classId = np.random.choice([ 0, 1 ])
                 
                 if self.parameters["mode"] == SINGLE:
-                    image = self.imageLoader.getImage(self.classId, screenWidth, screenHeight)
+                    image = None
+                    if not (self.imageLoader is None):
+                        image = self.imageLoader.getImage(self.classId, screenWidth, screenHeight)
 
                     if not (image is None):
                         self.imageUpdateNeeded = False
@@ -210,8 +233,6 @@ class Controller:
             getClassifier()
             
             getImageLoader()
-                        
-            sampleThread.start()
             
         getParameters()
         
@@ -233,20 +254,6 @@ class Controller:
         display.setRequestImageUpdate(requestImageUpdate)
         display.setStartLogging(self.samplerHandler.startLogging)
         display.setStopLogging(self.samplerHandler.stopLogging)
-
-        def fakeSampler():
-            while True:
-                sample = self.samplerHandler.getFakeSample()
-                
-                self.samplerHandler.handleSample(sample)
-                
-                #pygame.time.delay(16)
-                time.sleep(0.016)
-                
-        sampleThread = Thread(target=fakeSampler,
-                             name="Fake sampler thread",
-                             args=[])
-        sampleThread.daemon = True
 
         handleRecordsThread = Thread(target=handleRecords,
                                      name="Handle records thread",
