@@ -87,7 +87,7 @@ class Classifier:
             
             for record in trainingData:
                 classId = int(record[0])
-                recordId = int(record[1])
+                recordId = float(record[1])
                 timeStamp = float(record[2])
                 x = getPixel(record[3], screenWidth)
                 y = getPixel(record[4], screenHeight)

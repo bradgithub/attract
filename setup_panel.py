@@ -102,7 +102,7 @@ class SetupPanel():
                 self.parameters["requiredSamplesPerTrial"] = 600
 
         def saveParameters():
-            with open("parameters.csv", "wb") as parametersFile:
+            with open("parameters.cfg", "wb") as parametersFile:
                 lines = []
                 for parameterName in self.parameters:
                     parameterValue = self.parameters[parameterName]
