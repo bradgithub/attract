@@ -156,7 +156,7 @@ class SetupPanel():
 
 
         labelPositiveQuery = Label(container)
-        labelPositiveQuery["text"] = "Arousal/right image/king-of-the-hill Flickr query and Group ID:"
+        labelPositiveQuery["text"] = "Arousal/image stream A Flickr query and group ID:"
         labelPositiveQuery["anchor"] = W
         labelPositiveQuery.grid(row=2, column=0, sticky=W)
 
@@ -172,7 +172,7 @@ class SetupPanel():
 
 
         labelNegativeQuery = Label(container)
-        labelNegativeQuery["text"] = "Non-arousal/left image Flickr query and Group ID:"
+        labelNegativeQuery["text"] = "Non-arousal/image stream B Flickr query and group ID:"
         labelNegativeQuery["anchor"] = W
         labelNegativeQuery.grid(row=3, column=0, sticky=W)
 
