@@ -8,4 +8,4 @@ arousalGroupId =
 requiredSamplesPerTrial = 100
 mode = dual
 useGazeFractionFeature = 0
-trainingDataFilename = 
+trainingDataFilename = /home/toor/Projects/attract/dual1.csv

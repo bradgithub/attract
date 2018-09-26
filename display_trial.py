@@ -73,13 +73,8 @@ class DisplayTrial:
                     x = int(x * screenWidth)
                     y = int(y * screenHeight)
                     
-                    pygame.draw.circle(screen, white, (x, y), displayRadius, 4)
-                    pygame.draw.circle(screen, green, (x, y), displayRadius, 2)
-                    
-                return True
-            
-            else:
-                return False
+                    pygame.draw.circle(screen, green, (x, y), displayRadius, 4)
+                    pygame.draw.circle(screen, white, (x, y), displayRadius, 2)
 
         self.setImage = setImage
         self.setGazePoint = setGazePoint

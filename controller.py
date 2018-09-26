@@ -123,23 +123,27 @@ class Controller:
                 
         def getSampleHandler():
             self.samplerHandler = SampleHandler(self.parameters["requiredSamplesPerTrial"])
-            
+        
+        def requestImageUpdate():
+            self.imageUpdateNeeded = True
+        
         def updateTrial():
-            if self.samplerHandler.isRecordsFull():
-                self.samplerHandler.saveRecords(self.classId, self.parameters["saveDataFilename"])
+            records, gazePoint = self.samplerHandler.getData()
+            
+            if not (records is None):
+                self.samplerHandler.saveRecords(self.classId, records, self.parameters["saveDataFilename"])
                 
                 if not (self.classifier is None):
-                    records = self.samplerHandler.getRecords()
-                    
-                    if not (records is None):
-                        if self.classifier.classify(records) is 1:
-                            sounds[1].play()
-                            
-                        else:
-                            sounds[0].play()
+                    if self.classifier.classify(records) is 1:
+                        self.sounds[1].play()
+                        
+                    else:
+                        self.sounds[0].play()
                 
                 self.imageUpdateNeeded = True
                 
+            display.setGazePoint(gazePoint)
+            
             if self.imageUpdateNeeded:
                 self.classId = np.random.choice([ 0, 1 ])
                 
@@ -150,9 +154,8 @@ class Controller:
                         self.imageUpdateNeeded = False
                 
                         display.setImage(image)
-                        
-                    else:
-                        return False
+                    
+                        return True
                     
                 else:
                     imageA = self.imageLoader.getImage(1 - self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
@@ -162,14 +165,10 @@ class Controller:
                         self.imageUpdateNeeded = False
                 
                         display.setImage(imageA, imageB)
-                        
-                    else:
-                        return False
                     
-            gazePoint = self.samplerHandler.getGazePoint()
-            display.setGazePoint(gazePoint)
+                        return True
             
-            return True
+            return False
             
         def setup():
             getSounds()
@@ -178,6 +177,8 @@ class Controller:
             
             getImageLoader()
                         
+            sampleThread.start()
+            
         getParameters()
         
         getSampleHandler()
@@ -195,7 +196,9 @@ class Controller:
         setupThread.start()
 
         display.setUpdateTrial(updateTrial)
-        display.setUpdateLogging(self.samplerHandler.startLogging)
+        display.setRequestImageUpdate(requestImageUpdate)
+        display.setStartLogging(self.samplerHandler.startLogging)
+        display.setStopLogging(self.samplerHandler.stopLogging)
 
         def fakeSampler():
             while True:
@@ -209,7 +212,6 @@ class Controller:
                              name="Fake sampler thread",
                              args=[])
         sampleThread.daemon = True
-        sampleThread.start()
 
         display.mainloop()
 

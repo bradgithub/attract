@@ -11,11 +11,8 @@ class SampleHandler:
                  smoothingWindowLength=5,
                  smoothingFactor=10.0):
         lock = Lock()
-        
         gazePoint = [ None ]
-        recordsFull = [ False ]
         readyToRecord = [ False ]
-                
         xySmoothingWindow = deque()
         records = Records()
         
@@ -57,24 +54,28 @@ class SampleHandler:
                     xySmoothingWindow.clear()
                     gazePoint[0] = None
                         
-                if records.count() == requiredRecordsCount:
+                if isRecordsFull():
                     xySmoothingWindow.clear()
                     gazePoint[0] = None
-                    recordsFull[0] = True
                     readyToRecord[0] = False
 
+        def isRecordsFull():
+            return records.count() == requiredRecordsCount
+
         def saveRecords(classId,
-                        records,
+                        data,
                         outputFilename):
-            records.save(classId, records, outputFilename)
+            records.save(classId, data, outputFilename)
         
         def getData():
             with lock:
                 data = [ None, gazePoint[0] ]
                 
-                if recordsFull[0]:
+                if isRecordsFull():
                     data[0] = records.get()
-                    
+                
+                    records.clear()
+                
                 return data
        
         def stopLogging():
@@ -82,7 +83,6 @@ class SampleHandler:
                 records.clear()
                 xySmoothingWindow.clear()
                 gazePoint[0] = None
-                recordsFull[0] = False
                 readyToRecord[0] = False
        
         def startLogging():
@@ -90,7 +90,6 @@ class SampleHandler:
                 records.clear()
                 xySmoothingWindow.clear()
                 gazePoint[0] = None
-                recordsFull[0] = False
                 readyToRecord[0] = True
 
         def getFakeSample():

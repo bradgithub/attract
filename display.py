@@ -1,3 +1,4 @@
+import sys
 import pygame
 from threading import Lock
 
@@ -20,8 +21,9 @@ class Display:
         loggingLock = Lock()
         loggingQueue = [ [] ]
         updateTrial = [ None ]
-        stopLogging = [ None ]
         startLogging = [ None ]
+        stopLogging = [ None ]
+        requestImageUpdate = [ None ]
         
         def log(text):
             with loggingLock:
@@ -30,11 +32,14 @@ class Display:
         def setUpdateTrial(updateTrial_):
             updateTrial[0] = updateTrial_
             
+        def setStartLogging(startLogging_):
+            startLogging[0] = startLogging_
+        
         def setStopLogging(stopLogging_):
             stopLogging[0] = stopLogging_
         
-        def setStartLogging(startLogging_):
-            startLogging[0] = startLogging_
+        def setRequestImageUpdate(requestImageUpdate_):
+            requestImageUpdate[0] = requestImageUpdate_
         
         def mainloop():
             while True:
@@ -60,19 +65,14 @@ class Display:
                 else:
                     screen.fill((0, 0, 0))
             
-                    updateTrialSuccess = False
-                    if not (updateTrial[0] is None):
-                        updateTrialSuccess = updateTrial[0]()
+                    updateSuccess = updateTrial[0]()
                     
-                    displayTrialSuccess = False
-                    if updateTrialSuccess:
-                        displayTrialSuccess = displayTrial.render()
-                
+                    displayTrial.render()
+                    
                     pygame.display.flip()
-
-                    if displayTrialSuccess:
-                        if not (updateLogging[0] is None):
-                            updateLogging[0]()
+                        
+                    if updateSuccess:
+                        startLogging[0]()
 
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN:
@@ -81,17 +81,24 @@ class Display:
                             sys.exit(0)
                             
                         elif event.key == pygame.K_SPACE:
+                            stopLogging[0]()
+                            
+                            if displayLog[0]:
+                                requestImageUpdate[0]()
+
                             displayLog[0] = not displayLog[0]
 
                     elif event.type == pygame.QUIT:
                         print("exiting...")
                         sys.exit(0)
             
-                pygame.time.delay(100)
+                pygame.time.delay(50)
                 
         self.log = log
         self.mainloop = mainloop
         self.setImage = displayTrial.setImage
         self.setGazePoint = displayTrial.setGazePoint
         self.setUpdateTrial = setUpdateTrial
-        self.setUpdateLogging = setUpdateLogging
+        self.setStartLogging = setStartLogging
+        self.setStopLogging = setStopLogging
+        self.setRequestImageUpdate = setRequestImageUpdate

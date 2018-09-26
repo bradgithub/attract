@@ -249,7 +249,7 @@ class Classifier:
             features = None
             
             if useDualMode:
-                features = getDualModeFeatures(xyPoints)
+                features = getDualModeFeatures(xyPoints)[0]
                 
             else:
                 features = getSingleModeFeatures(xyPoints)
