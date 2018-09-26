@@ -18,48 +18,46 @@ class SampleHandler:
         
         def handleSample(sample):
             with lock:
-                if not readyToRecord[0]:
-                    return
+                if readyToRecord[0]:
+                    if sample["LPOGV"] == "1" and sample["RPOGV"] == "1" and sample["LPV"] == "1" and sample["RPV"] == "1":
+                        xl = float(sample["LPOGX"])
+                        yl = float(sample["LPOGY"])
+                        
+                        xr = float(sample["RPOGX"])
+                        yr = float(sample["RPOGY"])
+                        
+                        if xl >= 0 and xl <= 1 and yl >= 0 and yl <= 1 and xr >= 0 and xr <= 1 and yr >= 0 and yr <= 1:
+                            x = (xl + xr) / 2.0
+                            y = (yr + yr) / 2.0
+                            
+                            records.append(x, y)
                 
-                if sample["LPOGV"] == "1" and sample["RPOGV"] == "1" and sample["LPV"] == "1" and sample["RPV"] == "1":
-                    xl = float(sample["LPOGX"])
-                    yl = float(sample["LPOGY"])
-                    
-                    xr = float(sample["RPOGX"])
-                    yr = float(sample["RPOGY"])
-                    
-                    if xl >= 0 and xl <= 1 and yl >= 0 and yl <= 1 and xr >= 0 and xr <= 1 and yr >= 0 and yr <= 1:
-                        x = (xl + xr) / 2.0
-                        y = (yr + yr) / 2.0
-                        
-                        records.append(x, y)
-            
-                        if False:
-                            if len(xySmoothingWindow) == smoothingWindowLength:
-                                xMean, yMean = np.mean(xySmoothingWindow, 0)
-                                xLim, yLim = np.std(xySmoothingWindow, 0) * smoothingFactor
-                                xySmoothingWindow.popleft()
-                                
-                                if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
-                                    xySmoothingWindow.clear()
+                            if False:
+                                if len(xySmoothingWindow) == smoothingWindowLength:
+                                    xMean, yMean = np.mean(xySmoothingWindow, 0)
+                                    xLim, yLim = np.std(xySmoothingWindow, 0) * smoothingFactor
+                                    xySmoothingWindow.popleft()
                                     
-                            xySmoothingWindow.append((x, y))
-                            x, y = np.mean(xySmoothingWindow, 0)
-                        
-                        gazePoint[0] = (x, y)
+                                    if x < xMean - xLim or x > xMean + xLim or y < yMean - yLim or y > yMean + yLim:
+                                        xySmoothingWindow.clear()
+                                        
+                                xySmoothingWindow.append((x, y))
+                                x, y = np.mean(xySmoothingWindow, 0)
+                            
+                            gazePoint[0] = (x, y)
 
+                        else:
+                            xySmoothingWindow.clear()
+                            gazePoint[0] = None
+                            
                     else:
                         xySmoothingWindow.clear()
                         gazePoint[0] = None
-                        
-                else:
-                    xySmoothingWindow.clear()
-                    gazePoint[0] = None
-                        
-                if isRecordsFull():
-                    xySmoothingWindow.clear()
-                    gazePoint[0] = None
-                    readyToRecord[0] = False
+                            
+                    if isRecordsFull():
+                        xySmoothingWindow.clear()
+                        gazePoint[0] = None
+                        readyToRecord[0] = False
 
         def isRecordsFull():
             return records.count() == requiredRecordsCount
@@ -75,7 +73,6 @@ class SampleHandler:
                 
                 if isRecordsFull():
                     data[0] = records.get()
-                
                     records.clear()
                 
                 return data

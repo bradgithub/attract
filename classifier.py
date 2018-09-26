@@ -17,8 +17,8 @@ class Classifier:
                  useGazeFractionFeature = False,
                  infoCallback = None):
         halfScreenWidth = int(screenWidth / 2.0)
-        recurrenceRadius = screenWidth * float(recurrenceRadiusScreenFraction)
-        mostVisitedAreaRadius = screenWidth * float(mostVisitedAreaRadiusScreenFraction)
+        recurrenceRadius = min(screenWidth, screenHeight) * float(recurrenceRadiusScreenFraction)
+        mostVisitedAreaRadius = min(screenWidth, screenHeight) * float(mostVisitedAreaRadiusScreenFraction)
         
         trainX = []
         trainy = []

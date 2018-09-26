@@ -1,11 +1,12 @@
-import pygame
 import sys
-from Tkinter import Tk
-from threading import Thread, Lock, Semaphore
-import numpy as np
 import math
 import csv
+import time
+import pygame
+import numpy as np
+from Tkinter import Tk
 from collections import deque
+from threading import Thread, Lock, Semaphore
 
 from setup_panel import SetupPanel, SINGLE, DUAL, COMPETITION
 from flickr_image_loader import FlickrImageLoader
@@ -239,7 +240,8 @@ class Controller:
                 
                 self.samplerHandler.handleSample(sample)
                 
-                pygame.time.delay(16)
+                #pygame.time.delay(16)
+                time.sleep(0.016)
                 
         sampleThread = Thread(target=fakeSampler,
                              name="Fake sampler thread",

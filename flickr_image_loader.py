@@ -1,10 +1,11 @@
-import urllib
-import json
-import numpy as np
-import math
-import pygame
 import io
 import sys
+import math
+import json
+import time
+import urllib
+import pygame
+import numpy as np
 from threading import Lock, Thread
 
 class FlickrImageLoader:
@@ -245,4 +246,5 @@ if __name__ == "__main__":
                 print("exiting...")
                 sys.exit(0)
         
-        pygame.time.delay(100)
+        #pygame.time.delay(100)
+        time.sleep(0.100)

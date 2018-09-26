@@ -1,4 +1,5 @@
 import sys
+import time
 import pygame
 from threading import Lock
 
@@ -99,7 +100,8 @@ class Display:
                         print("exiting...")
                         sys.exit(0)
             
-                pygame.time.delay(100)
+                #pygame.time.delay(100)
+                time.sleep(0.100)
                 
         self.log = log
         self.mainloop = mainloop
