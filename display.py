@@ -42,7 +42,15 @@ class Display:
         
         def setRequestImageUpdate(requestImageUpdate_):
             requestImageUpdate[0] = requestImageUpdate_
-        
+            
+        def showTrialDisplay():
+            if displayLog[0]:
+                stopLogging[0]()
+                            
+                requestImageUpdate[0]()
+
+                displayLog[0] = False
+
         def mainloop():
             while True:
                 if displayLog[0]:
@@ -111,3 +119,4 @@ class Display:
         self.setStartLogging = setStartLogging
         self.setStopLogging = setStopLogging
         self.setRequestImageUpdate = setRequestImageUpdate
+        self.showTrialDisplay = showTrialDisplay

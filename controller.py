@@ -153,6 +153,8 @@ class Controller:
                     log("Starting sampling from OpenGaze GP3")
                     
                     gazeTracker.start_recording()
+                    
+                    display.showTrialDisplay()
                         
             sampleThread = Thread(target=sampler,
                                 name="Sampler thread",
