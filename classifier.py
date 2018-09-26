@@ -284,7 +284,7 @@ class Records:
                  outputFilename):
             if not (classId is None) and not (outputFilename is None) and len(outputFilename) > 0:
                 classId = str(classId)
-                recordId = str(time.now())
+                recordId = str(time.time())
                 
                 output = []
 
