@@ -1,4 +1,5 @@
 import pygame
+import sys
 from Tkinter import Tk
 from threading import Thread, Lock, Semaphore
 import numpy as np
@@ -39,6 +40,9 @@ class Controller:
 
             self.parameters = setupPanel.parameters
             
+            if not (self.parameters["mode"] == SINGLE) and not (self.parameters["mode"] == DUAL):
+                sys.exit(0)
+            
         def getImageLoader():
             searchQueries = [
                 self.parameters["arousalQuery"]
@@ -56,7 +60,7 @@ class Controller:
                 groupIds.append(None)
                 if len(self.parameters["nonArousalGroupId"]) > 0:
                     groupIds[1] = self.parameters["nonArousalGroupId"]
-            
+                    
             randomize = True
             if self.parameters["randomizeImages"] == 0:
                 randomize = False

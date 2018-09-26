@@ -24,6 +24,7 @@ class Display:
         startLogging = [ None ]
         stopLogging = [ None ]
         requestImageUpdate = [ None ]
+        pauseGazePoint = [ False ]
         
         def log(text):
             with loggingLock:
@@ -67,6 +68,9 @@ class Display:
             
                     updateSuccess = updateTrial[0]()
                     
+                    if pauseGazePoint[0]:
+                        displayTrial.setGazePoint(None)
+                    
                     displayTrial.render()
                     
                     pygame.display.flip()
@@ -80,6 +84,9 @@ class Display:
                             print("exiting...")
                             sys.exit(0)
                             
+                        elif event.key == pygame.K_RETURN:
+                            pauseGazePoint[0] = not pauseGazePoint[0]
+
                         elif event.key == pygame.K_SPACE:
                             stopLogging[0]()
                             

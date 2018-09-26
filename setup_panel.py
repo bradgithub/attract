@@ -237,23 +237,37 @@ class SetupPanel():
         entryRequiredSamplesPerTrial.grid(row=7, column=1, sticky=W, columnspan=2)
         
     
-        buttonStartSingleMode = Button(buttonContainer)
-        buttonStartSingleMode["command"] = startSingleMode
-        buttonStartSingleMode["width"] = buttonWidth
-        buttonStartSingleMode["text"]= "Start sequential mode" 
-        buttonStartSingleMode.pack(side=LEFT)
-        
-        buttonStartDualMode = Button(buttonContainer)
-        buttonStartDualMode["command"] = startDualMode
-        buttonStartDualMode["width"] = buttonWidth
-        buttonStartDualMode["text"]= "Start parallel mode" 
-        buttonStartDualMode.pack(side=LEFT, expand=YES)
-        
-        buttonStartCompetitionMode = Button(buttonContainer)
-        buttonStartCompetitionMode["command"] = startCompetitionMode
-        buttonStartCompetitionMode["width"] = buttonWidth
-        buttonStartCompetitionMode["text"]= "Start competition mode" 
-        buttonStartCompetitionMode.pack(side=RIGHT)
+        if False:
+            buttonStartSingleMode = Button(buttonContainer)
+            buttonStartSingleMode["command"] = startSingleMode
+            buttonStartSingleMode["width"] = buttonWidth
+            buttonStartSingleMode["text"]= "Start sequential mode" 
+            buttonStartSingleMode.pack(side=LEFT)
+            
+            buttonStartDualMode = Button(buttonContainer)
+            buttonStartDualMode["command"] = startDualMode
+            buttonStartDualMode["width"] = buttonWidth
+            buttonStartDualMode["text"]= "Start parallel mode" 
+            buttonStartDualMode.pack(side=LEFT, expand=YES)
+
+            buttonStartCompetitionMode = Button(buttonContainer)
+            buttonStartCompetitionMode["command"] = startCompetitionMode
+            buttonStartCompetitionMode["width"] = buttonWidth
+            buttonStartCompetitionMode["text"]= "Start competition mode" 
+            buttonStartCompetitionMode.pack(side=RIGHT)
+            
+        else:
+            buttonStartSingleMode = Button(buttonContainer)
+            buttonStartSingleMode["command"] = startSingleMode
+            buttonStartSingleMode["width"] = buttonWidth
+            buttonStartSingleMode["text"]= "Start sequential mode" 
+            buttonStartSingleMode.pack(side=LEFT, expand=YES)
+            
+            buttonStartDualMode = Button(buttonContainer)
+            buttonStartDualMode["command"] = startDualMode
+            buttonStartDualMode["width"] = buttonWidth
+            buttonStartDualMode["text"]= "Start parallel mode" 
+            buttonStartDualMode.pack(side=RIGHT, expand=YES)
         
 if __name__ == "__main__":
     root = Tk()

@@ -94,10 +94,10 @@ class SampleHandler:
 
         def getFakeSample():
             if np.random.random() < 0.33:
-                x, y = 0.5 + np.random.random() / 2.0, np.random.random()
+                x, y = np.random.random() / 2.0, np.random.random()
                 
             else:
-                x, y = (np.random.normal() * 0.1 + 0.5) / 2.0, np.random.normal() * 0.1 + 0.5
+                x, y = 0.5 + (np.random.normal() * 0.1 + 0.5) / 2.0, np.random.normal() * 0.1 + 0.5
             
             sample_ = {
                 "LPOGV": "1",
