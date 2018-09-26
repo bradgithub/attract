@@ -1,9 +1,10 @@
 import pygame
 from Tkinter import Tk
-from threading import Thread
+from threading import Thread, Lock, Semaphore
 import numpy as np
 import math
 import csv
+from collections import deque
 
 from setup_panel import SetupPanel, SINGLE, DUAL, COMPETITION
 from flickr_image_loader import FlickrImageLoader
@@ -20,6 +21,10 @@ class Controller:
         self.classifier = None
         self.imageLoader = None
         self.imageUpdateNeeded = True
+        
+        handleRecordsLock = Lock()
+        handleRecordsSemaphore = Semaphore(0)
+        handleRecordsDeque = deque()
         
         def getParameters():
             root = Tk()
@@ -127,18 +132,42 @@ class Controller:
         def requestImageUpdate():
             self.imageUpdateNeeded = True
         
+        def handleRecords():
+            while True:
+                handleRecordsSemaphore.acquire()
+                
+                with handleRecordsLock:
+                    records, classId = handleRecordsDeque.popleft()
+            
+                if not (self.classifier is None):
+                    if self.classifier.classify(records) == 1:
+                        if self.parameters["mode"] == SINGLE:
+                            log("Prediction: arousal")
+                        
+                        else:
+                            log("Prediction: right image")
+                        
+                        self.sounds[1].play()
+                        
+                    else:
+                        if self.parameters["mode"] == SINGLE:
+                            log("Prediction: non-arousal")
+                        
+                        else:
+                            log("Prediction: left image")
+
+                        self.sounds[0].play()
+        
+                self.samplerHandler.saveRecords(classId, records, self.parameters["saveDataFilename"])
+                
         def updateTrial():
             records, gazePoint = self.samplerHandler.getData()
             
             if not (records is None):
-                self.samplerHandler.saveRecords(self.classId, records, self.parameters["saveDataFilename"])
+                with handleRecordsLock:
+                    handleRecordsDeque.append((records, self.classId))
                 
-                if not (self.classifier is None):
-                    if self.classifier.classify(records) is 1:
-                        self.sounds[1].play()
-                        
-                    else:
-                        self.sounds[0].play()
+                handleRecordsSemaphore.release()
                 
                 self.imageUpdateNeeded = True
                 
@@ -213,6 +242,12 @@ class Controller:
                              args=[])
         sampleThread.daemon = True
 
+        handleRecordsThread = Thread(target=handleRecords,
+                                     name="Handle records thread",
+                                     args=[])
+        handleRecordsThread.daemon = True
+        handleRecordsThread.start()
+        
         display.mainloop()
 
 if __name__ == "__main__":
