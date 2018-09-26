@@ -47,25 +47,22 @@ class Controller:
             
         def getImageLoader():
             searchQueries = [
+                self.parameters["nonArousalQuery"],
                 self.parameters["arousalQuery"]
             ]
             
             groupIds = [
+                None,
                 None
             ]
             
-            if len(self.parameters["arousalGroupId"]) > 0:
+            if len(self.parameters["nonArousalGroupId"]) > 0:
                 groupIds[0] = self.parameters["arousalGroupId"]
-            
-            if self.parameters["mode"] == SINGLE or self.parameters["mode"] == DUAL:
-                searchQueries.append(self.parameters["nonArousalQuery"])
-                groupIds.append(None)
-                if len(self.parameters["nonArousalGroupId"]) > 0:
-                    groupIds[1] = self.parameters["nonArousalGroupId"]
+                
+            if len(self.parameters["arousalGroupId"]) > 0:
+                groupIds[1] = self.parameters["arousalGroupId"]
                     
-            randomize = True
-            if self.parameters["randomizeImages"] == 0:
-                randomize = False
+            randomize = self.parameters["randomizeImages"] == 1
                 
             maxImagesPerCategory = self.parameters["maxImagesPerCategory"]
             
