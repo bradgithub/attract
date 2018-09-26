@@ -13,7 +13,7 @@ from flickr_image_loader import FlickrImageLoader
 from classifier import Classifier
 from display import Display
 from sample_handler import SampleHandler
-from opengaze import OpenGazeTracker
+from myopengaze import OpenGazeTracker
 
 class Controller:
     def __init__(self):
