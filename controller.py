@@ -241,13 +241,13 @@ class Controller:
             
         getParameters()
         
-        getSampleHandler()
-        
         display = Display()
         
         log = display.log
         screenWidth = display.screenWidth
         screenHeight = display.screenHeight
+        
+        getSampleHandler()
         
         setupThread = Thread(target=setup,
                              name="Setup thread",
