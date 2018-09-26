@@ -24,7 +24,7 @@ class SetupPanel():
         }
 
         try:
-            with open("parameters.csv", "rb") as parametersFile:
+            with open("parameters.cfg", "rb") as parametersFile:
                 for line in parametersFile:
                     match = re.match("^(?P<name>[^=]+)=(?P<value>.+)$", line)
                     if not (match is None):
