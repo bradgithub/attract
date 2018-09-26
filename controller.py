@@ -135,8 +135,8 @@ class Controller:
         def getSampleHandler():
             self.samplerHandler = SampleHandler(self.parameters["requiredSamplesPerTrial"])
         
-            if False:
-                def fakeSampler():
+            def sampler():
+                if False:
                     while True:
                         sample = self.samplerHandler.getFakeSample()
                         
@@ -144,17 +144,21 @@ class Controller:
                         
                         #pygame.time.delay(16)
                         time.sleep(0.016)
+                else:
+                    log("Connecting to OpenGaze GP3...")
+                    
+                    gazeTracker = OpenGazeTracker(self.samplerHandler.handleSample)
+
+                    log("Starting sampling from OpenGaze GP3")
+                    
+                    gazeTracker.start_recording()
                         
-                sampleThread = Thread(target=fakeSampler,
-                                    name="Fake sampler thread",
-                                    args=[])
-                sampleThread.daemon = True
-                sampleThread.start()
-            
-            else:
-                gazeTracker = OpenGazeTracker(self.samplerHandler.handleSample)
-                gazeTracker.start_recording()
-            
+            sampleThread = Thread(target=sampler,
+                                name="Sampler thread",
+                                args=[])
+            sampleThread.daemon = True
+            sampleThread.start()
+                        
         def requestImageUpdate():
             self.imageUpdateNeeded = True
         
