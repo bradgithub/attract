@@ -144,6 +144,7 @@ class Controller:
                         
                         #pygame.time.delay(16)
                         time.sleep(0.016)
+                        
                 else:
                     log("Connecting to OpenGaze GP3...")
                     
