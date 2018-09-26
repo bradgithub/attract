@@ -259,7 +259,7 @@ class Classifier:
         self.classify = classify
 
 class Records:
-    def __init__():
+    def __init__(self):
         data = [ [] ]
         
         def clear():
@@ -280,6 +280,7 @@ class Records:
             return data[0]
         
         def save(classId,
+                 records,
                  outputFilename):
             if not (classId is None) and not (outputFilename is None) and len(outputFilename) > 0:
                 classId = str(classId)
@@ -287,7 +288,7 @@ class Records:
                 
                 output = []
 
-                for record in data[0]:
+                for record in records:
                     record = (
                         str(classId),
                         str(recordId),

@@ -125,14 +125,14 @@ class Controller:
             self.samplerHandler = SampleHandler(self.parameters["requiredSamplesPerTrial"])
             
         def updateTrial():
-            if self.samplerHandler.isRecordsFull()
+            if self.samplerHandler.isRecordsFull():
                 self.samplerHandler.saveRecords(self.classId, self.parameters["saveDataFilename"])
                 
                 if not (self.classifier is None):
-                    records = self.sampleHandler.getRecords()
+                    records = self.samplerHandler.getRecords()
                     
                     if not (records is None):
-                        if classifier.classify(records) is 1:
+                        if self.classifier.classify(records) is 1:
                             sounds[1].play()
                             
                         else:
@@ -141,11 +141,35 @@ class Controller:
                 self.imageUpdateNeeded = True
                 
             if self.imageUpdateNeeded:
-                self.imageUpdateNeeded = False
+                self.classId = np.random.choice([ 0, 1 ])
                 
                 if self.parameters["mode"] == SINGLE:
-                    image = self.imageLoader.getImage(screenWidth, screenHeight)
+                    image = self.imageLoader.getImage(self.classId, screenWidth, screenHeight)
+
+                    if not (image is None):
+                        self.imageUpdateNeeded = False
+                
+                        display.setImage(image)
+                        
+                    else:
+                        return False
+                    
+                else:
+                    imageA = self.imageLoader.getImage(1 - self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
+                    imageB = self.imageLoader.getImage(self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
+                    
+                    if not (imageA is None) and not (imageB is None):
+                        self.imageUpdateNeeded = False
+                
+                        display.setImage(imageA, imageB)
+                        
+                    else:
+                        return False
+                    
+            gazePoint = self.samplerHandler.getGazePoint()
+            display.setGazePoint(gazePoint)
             
+            return True
             
         def setup():
             getSounds()
@@ -153,8 +177,10 @@ class Controller:
             getClassifier()
             
             getImageLoader()
-
+                        
         getParameters()
+        
+        getSampleHandler()
         
         display = Display()
         
@@ -167,6 +193,23 @@ class Controller:
                              args=[])
         setupThread.daemon = True
         setupThread.start()
+
+        display.setUpdateTrial(updateTrial)
+        display.setUpdateLogging(self.samplerHandler.startLogging)
+
+        def fakeSampler():
+            while True:
+                sample = self.samplerHandler.getFakeSample()
+                
+                self.samplerHandler.handleSample(sample)
+                
+                pygame.time.delay(16)
+                
+        sampleThread = Thread(target=fakeSampler,
+                             name="Fake sampler thread",
+                             args=[])
+        sampleThread.daemon = True
+        sampleThread.start()
 
         display.mainloop()
 

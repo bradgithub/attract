@@ -143,7 +143,7 @@ class FlickrImageLoader:
         
         def loader():
             urlsToLoad = []
-            categoryId = 0
+            classId = 0
             for searchQuery, groupId in zip(searchQueries, groupIds):
                 log("Running " + str(searchQuery) + " search")
 
@@ -153,10 +153,12 @@ class FlickrImageLoader:
                 
                 count = 0
                 for urlId in urlIds:
-                    urlsToLoad.append([ count, categoryId, urlId ])
+                    urlsToLoad.append([ count, classId, urlId ])
                     count = count + 1
-                categoryId = categoryId + 1
+                classId = classId + 1
+                
             log("Retrieving images")
+            
             urlsToLoad.sort(key=lambda x: (x[0], x[1]))
             for urlToLoad in urlsToLoad:
                 if len(images[urlToLoad[1]]) < maxImagesPerCategory:
@@ -165,7 +167,7 @@ class FlickrImageLoader:
                     if not (url is None):
                         image = loadImageUrl(url)
                         if not (image is None):
-                            log("Retrieved category " + str(urlToLoad[1]) + " image url " + url)
+                            log("Retrieved class " + str(urlToLoad[1]) + " image url " + url)
                             with lock:
                                 images[urlToLoad[1]].append(image)
 
@@ -175,21 +177,21 @@ class FlickrImageLoader:
         loaderThread.daemon = True
         loaderThread.start()
 
-        def getImage(category,
-                    width,
-                    height):
+        def getImage(classId,
+                     width,
+                     height):
             image = None
             
             with lock:
                 try:
-                    _images = images[category]
+                    _images = images[classId]
                     imageIds = range(len(_images))
                     np.random.shuffle(imageIds)
                     imageId = None
                     for imageId in imageIds:
-                        if len(imageIds) == 1 or not (imageId == lastImageChoices[category]):
+                        if len(imageIds) == 1 or not (imageId == lastImageChoices[classId]):
                             break
-                    lastImageChoices[category] = imageId
+                    lastImageChoices[classId] = imageId
                     if not (imageId is None):
                         image = _images[imageId]
                         if not (width == image.get_width()) or not (height == image.get_height()):

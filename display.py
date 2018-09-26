@@ -2,38 +2,43 @@ import pygame
 from threading import Lock
 
 from display_logger import DisplayLogger
+from display_trial import DisplayTrial
                 
 class Display:
     def __init__(self):
         pygame.init()
 
-        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        #screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        screen = pygame.display.set_mode((1000, 1000))
         self.screenWidth = screen.get_width()
         self.screenHeight = screen.get_height()
-
-        white = pygame.Color(255, 255, 255, 255)
-        red = pygame.Color(255, 0, 0, 255)
-        green = pygame.Color(0, 255, 0, 255)
-        yellow = pygame.Color(255, 255, 0, 255)
-        
-        displayRadius = int(min(self.screenWidth, self.screenHeight) * 0.05)
-        
-        highlightImage = pygame.Surface((int(self.screenWidth / 2.0), self.screenHeight))
-        highlightImage.fill((255, 255, 255))
         
         displayLogger = DisplayLogger(screen)
+        displayTrial = DisplayTrial(screen)
         
-        inLoggingThread = True
+        displayLog = [ True ]
         loggingLock = Lock()
         loggingQueue = [ [] ]
+        updateTrial = [ None ]
+        stopLogging = [ None ]
+        startLogging = [ None ]
         
         def log(text):
             with loggingLock:
                 loggingQueue[0].append(text)
         
+        def setUpdateTrial(updateTrial_):
+            updateTrial[0] = updateTrial_
+            
+        def setStopLogging(stopLogging_):
+            stopLogging[0] = stopLogging_
+        
+        def setStartLogging(startLogging_):
+            startLogging[0] = startLogging_
+        
         def mainloop():
             while True:
-                if inLoggingThread:
+                if displayLog[0]:
                     oldLoggingQueue = [ [] ]
                     
                     with loggingLock:
@@ -47,9 +52,27 @@ class Display:
                     text = "\n".join(output)
 
                     screen.fill((40, 40, 40))
+                    
                     displayLogger.render(text)
                 
-                pygame.display.flip()
+                    pygame.display.flip()
+
+                else:
+                    screen.fill((0, 0, 0))
+            
+                    updateTrialSuccess = False
+                    if not (updateTrial[0] is None):
+                        updateTrialSuccess = updateTrial[0]()
+                    
+                    displayTrialSuccess = False
+                    if updateTrialSuccess:
+                        displayTrialSuccess = displayTrial.render()
+                
+                    pygame.display.flip()
+
+                    if displayTrialSuccess:
+                        if not (updateLogging[0] is None):
+                            updateLogging[0]()
 
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN:
@@ -57,6 +80,9 @@ class Display:
                             print("exiting...")
                             sys.exit(0)
                             
+                        elif event.key == pygame.K_SPACE:
+                            displayLog[0] = not displayLog[0]
+
                     elif event.type == pygame.QUIT:
                         print("exiting...")
                         sys.exit(0)
@@ -65,6 +91,7 @@ class Display:
                 
         self.log = log
         self.mainloop = mainloop
-
-if __name__ == "__main__":
-    Display()
+        self.setImage = displayTrial.setImage
+        self.setGazePoint = displayTrial.setGazePoint
+        self.setUpdateTrial = setUpdateTrial
+        self.setUpdateLogging = setUpdateLogging
