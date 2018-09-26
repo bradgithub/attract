@@ -32,7 +32,7 @@ class SampleHandler:
                             
                             records.append(x, y)
                 
-                            if False:
+                            if True:
                                 if len(xySmoothingWindow) == smoothingWindowLength:
                                     xMean, yMean = np.mean(xySmoothingWindow, 0)
                                     xLim, yLim = np.std(xySmoothingWindow, 0) * smoothingFactor
