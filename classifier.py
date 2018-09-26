@@ -69,7 +69,12 @@ class Classifier:
             return [ featureSetA, featureSetB ]
     
         def getPixel(value, extent):
-            intValue = int(value)
+            intValue = None
+            try:
+                intValue = int(value)
+            except ValueError:
+                pass
+            
             floatValue = float(value)
             
             if not (floatValue == intValue) or (floatValue > 0.0 and floatValue < 1.0) or value.find(".") > -1:
