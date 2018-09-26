@@ -101,7 +101,7 @@ class Display:
                         sys.exit(0)
             
                 #pygame.time.delay(100)
-                time.sleep(0.100)
+                time.sleep(0.050)
                 
         self.log = log
         self.mainloop = mainloop

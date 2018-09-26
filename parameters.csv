@@ -6,6 +6,6 @@ nonArousalQuery = britney spears
 arousalQuery = christina aguilera
 arousalGroupId = 
 requiredSamplesPerTrial = 600
-mode = competition
+mode = single
 useGazeFractionFeature = 0
 trainingDataFilename = /home/toor/Projects/attract/train.csv
