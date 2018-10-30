@@ -126,7 +126,14 @@ class LocalImageLoader:
                     if not (imageId is None):
                         image = _images[imageId]
                         if not (width == image.get_width()) or not (height == image.get_height()):
-                            image = pygame.transform.smoothscale(image, (width, height))
+                            imageAspect = float(image.get_width()) / float(image.get_height())
+                            newWidth = imageAspect * height
+                            newHeight = width / imageAspect
+                            if newWidth > width:
+                                newWidth = width
+                            elif newHeight > height:
+                                newHeight = height
+                            image = pygame.transform.smoothscale(image, (int(newWidth), int(newHeight)))
                             _images[imageId] = image
                             
                 except Exception:
@@ -140,13 +147,10 @@ if __name__ == "__main__":
     def log(message):
         print(message)
                 
-    loader = FlickrImageLoader([
-        "christina aguilera",
-        "britney spears"
-    ], [
-        None,
-        None
-    ], True, 200, log)
+    loader = LocalImageLoader([
+        "/tmp/aaa",
+        "/tmp/bbb"
+    ], True, log)
 
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
@@ -159,10 +163,14 @@ if __name__ == "__main__":
             screen.fill((0, 0, 0))
             imageA = loader.getImage(0, 400,600)
             imageB = loader.getImage(1, 400,600)
+            imageAx = int(float(400 - imageA.get_width()) / 2.0)
+            imageBx = int(float(400 - imageB.get_width()) / 2.0) + 400
+            imageAy = int(float(600 - imageA.get_height()) / 2.0)
+            imageBy = int(float(600 - imageB.get_height()) / 2.0)
             if not (imageA is None):
-                screen.blit(imageA, (0,0))
+                screen.blit(imageA, (imageAx,imageAy))
             if not (imageB is None):
-                screen.blit(imageB, (400,0))
+                screen.blit(imageB, (imageBx,imageBy))
             pygame.display.flip()
         count = count + 1
         

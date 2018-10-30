@@ -52,13 +52,19 @@ class DisplayTrial:
                         else:
                             combinedImage.blit(highlightImage, (halfScreenWidth, 0))
                             
+                    imageX = int(float(screenWidth * 4.0 / 12.0 - imageData[0][0].get_width()) / 2.0)
+                    imageY = int(float(screenHeight * 10.0 / 12.0 - imageData[0][0].get_height()) / 2.0)
+                            
                     combinedImage.blit(imageData[0][0],
-                                        (int(screenWidth / 12.0),
-                                        int(screenHeight / 12.0)))
+                                        (imageX + int(screenWidth / 12.0),
+                                        imageY + int(screenHeight / 12.0)))
+                    
+                    imageX = int(float(screenWidth * 4.0 / 12.0 - imageData[0][1].get_width()) / 2.0)
+                    imageY = int(float(screenHeight * 10.0 / 12.0 - imageData[0][1].get_height()) / 2.0)
                     
                     combinedImage.blit(imageData[0][1],
-                                        (int(screenWidth * 7.0 / 12.0),
-                                        int(screenHeight / 12.0)))
+                                        (imageX + int(screenWidth * 7.0 / 12.0),
+                                        imageY + int(screenHeight / 12.0)))
                         
                     image = combinedImage
                     

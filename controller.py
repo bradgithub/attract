@@ -9,7 +9,8 @@ from collections import deque
 from threading import Thread, Lock, Semaphore
 
 from setup_panel import SetupPanel, SINGLE, DUAL, COMPETITION
-from flickr_image_loader import FlickrImageLoader
+#from flickr_image_loader import FlickrImageLoader
+from local_image_loader import LocalImageLoader
 from classifier import Classifier
 from display import Display
 from sample_handler import SampleHandler
@@ -46,33 +47,18 @@ class Controller:
                 sys.exit(0)
             
         def getImageLoader():
-            searchQueries = [
-                self.parameters["nonArousalQuery"],
-                self.parameters["arousalQuery"]
+            imagePaths = [
+                self.parameters["nonArousalPath"],
+                self.parameters["arousalPath"]
             ]
             
-            groupIds = [
-                None,
-                None
-            ]
-            
-            if len(self.parameters["nonArousalGroupId"]) > 0:
-                groupIds[0] = self.parameters["arousalGroupId"]
-                
-            if len(self.parameters["arousalGroupId"]) > 0:
-                groupIds[1] = self.parameters["arousalGroupId"]
-                    
             randomize = self.parameters["randomizeImages"] == 1
-                
-            maxImagesPerCategory = self.parameters["maxImagesPerCategory"]
             
             log("Starting image loader...")
             
-            self.imageLoader = FlickrImageLoader(searchQueries,
-                                                 groupIds,
-                                                 randomize,
-                                                 maxImagesPerCategory,
-                                                 log)
+            self.imageLoader = LocalImageLoader(imagePaths,
+                                                randomize,
+                                                log)
         
         def getSounds():
             log("Creating sounds...")
