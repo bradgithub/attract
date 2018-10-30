@@ -197,23 +197,24 @@ class Controller:
                     if not (self.imageLoader is None):
                         image = self.imageLoader.getImage(self.classId, screenWidth, screenHeight)
 
-                    if not (image is None):
-                        self.imageUpdateNeeded = False
-                
-                        display.setImage(image)
+                        if not (image is None):
+                            self.imageUpdateNeeded = False
                     
-                        return True
+                            display.setImage(image)
+                        
+                            return True
                     
                 else:
-                    imageA = self.imageLoader.getImage(1 - self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
-                    imageB = self.imageLoader.getImage(self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
+                    if not (self.imageLoader is None):
+                        imageA = self.imageLoader.getImage(1 - self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
+                        imageB = self.imageLoader.getImage(self.classId, int(screenWidth / 3.0), int(screenHeight * 5.0 / 6.0))
+                        
+                        if not (imageA is None) and not (imageB is None):
+                            self.imageUpdateNeeded = False
                     
-                    if not (imageA is None) and not (imageB is None):
-                        self.imageUpdateNeeded = False
-                
-                        display.setImage(imageA, imageB)
-                    
-                        return True
+                            display.setImage(imageA, imageB)
+                        
+                            return True
             
             return False
             
