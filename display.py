@@ -103,6 +103,12 @@ class Display:
                                 requestImageUpdate[0]()
 
                             displayLog[0] = not displayLog[0]
+                        
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if not displayLog[0]:
+                            stopLogging[0]()
+                            
+                            requestImageUpdate[0]()
 
                     elif event.type == pygame.QUIT:
                         print("exiting...")
