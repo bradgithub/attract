@@ -146,6 +146,8 @@ class Controller:
             sampleThread.start()
                         
         def requestImageUpdate():
+            self.samplerHandler.startLogging()
+            
             self.imageUpdateNeeded = True
         
         def handleRecords():
@@ -185,7 +187,8 @@ class Controller:
                 
                 handleRecordsSemaphore.release()
                 
-                self.imageUpdateNeeded = True
+                #self.imageUpdateNeeded = True
+                self.samplerHandler.stopLogging()
                 
             display.setGazePoint(gazePoint)
             
