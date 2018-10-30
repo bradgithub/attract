@@ -133,7 +133,7 @@ class Controller:
             self.samplerHandler = SampleHandler(self.parameters["requiredSamplesPerTrial"])
         
             def sampler():
-                if False:
+                if True:
                     while True:
                         sample = self.samplerHandler.getFakeSample()
                         

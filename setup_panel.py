@@ -1,5 +1,5 @@
 from Tkinter import *
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename, askdirectory
 import tkSimpleDialog
 import re
 
@@ -20,7 +20,9 @@ class SetupPanel():
             "useGazeFractionFeature": "0",
             "maxImagesPerCategory": "",
             "requiredSamplesPerTrial": "",
-            "mode": ""
+            "mode": "",
+            "arousalPath": "",
+            "nonArousalPath": ""
         }
 
         try:
@@ -37,7 +39,7 @@ class SetupPanel():
 
         self.parameters["mode"] = ""
 
-        buttonWidth = 20
+        buttonWidth = 30
         labelWidth = 25
         entryWidth = 30
 
@@ -78,6 +80,20 @@ class SetupPanel():
             else:
                 labelResponseData["text"] = ""
 
+        def setArousalPath():
+            self.parameters["arousalPath"] = askdirectory(title="Select arousal images directory")
+            if not (self.parameters["arousalPath"] is None) and len(self.parameters["arousalPath"]) > 0:
+                labelArousalPath["text"] = self.parameters["arousalPath"]
+            else:
+                labelArousalPath["text"] = ""
+
+        def setNonArousalPath():
+            self.parameters["nonArousalPath"] = askdirectory(title="Select non-arousal images directory")
+            if not (self.parameters["nonArousalPath"] is None) and len(self.parameters["nonArousalPath"]) > 0:
+                labelNonArousalPath["text"] = self.parameters["nonArousalPath"]
+            else:
+                labelNonArousalPath["text"] = ""
+
         def setParameters():
             self.parameters["trainingDataFilename"] = labelTrainingData["text"]
             self.parameters["saveDataFilename"] = labelResponseData["text"]
@@ -87,6 +103,8 @@ class SetupPanel():
             self.parameters["nonArousalGroupId"] = entryNegativeGroupId.get()
             self.parameters["randomizeImages"] = int(randomizeValue.get())
             self.parameters["useGazeFractionFeature"] = int(gazeFractionValue.get())
+            self.parameters["arousalPath"] = labelArousalPath["text"]
+            self.parameters["nonArousalPath"] = labelNonArousalPath["text"]
             
             try:
                 self.parameters["maxImagesPerCategory"] = int(entryMaxImagesPerCategory.get())
@@ -100,6 +118,8 @@ class SetupPanel():
                 self.parameters["requiredSamplesPerTrial"] = int(entryRequiredSamplesPerTrial.get())
             except Exception:
                 self.parameters["requiredSamplesPerTrial"] = 600
+                
+            print(self.parameters)
 
         def saveParameters():
             with open("parameters.cfg", "wb") as parametersFile:
@@ -158,33 +178,53 @@ class SetupPanel():
         labelPositiveQuery = Label(container)
         labelPositiveQuery["text"] = "Arousal/image stream A Flickr query and group ID:"
         labelPositiveQuery["anchor"] = W
-        labelPositiveQuery.grid(row=2, column=0, sticky=W)
+        #labelPositiveQuery.grid(row=2, column=0, sticky=W)
 
         entryPositiveQuery = Entry(container)
         entryPositiveQuery["width"] = entryWidth
         entryPositiveQuery.insert(END, self.parameters["arousalQuery"])
-        entryPositiveQuery.grid(row=2, column=1, sticky=W)
+        #entryPositiveQuery.grid(row=2, column=1, sticky=W)
 
         entryPositiveGroupId = Entry(container)
         entryPositiveGroupId["width"] = int(entryWidth / 4.0)
         entryPositiveGroupId.insert(END, self.parameters["arousalGroupId"])
-        entryPositiveGroupId.grid(row=2, column=2, sticky=W)
+        #entryPositiveGroupId.grid(row=2, column=2, sticky=W)
 
 
         labelNegativeQuery = Label(container)
         labelNegativeQuery["text"] = "Non-arousal/image stream B Flickr query and group ID:"
         labelNegativeQuery["anchor"] = W
-        labelNegativeQuery.grid(row=3, column=0, sticky=W)
+        #labelNegativeQuery.grid(row=3, column=0, sticky=W)
 
         entryNegativeQuery = Entry(container)
         entryNegativeQuery["width"] = entryWidth
         entryNegativeQuery.insert(END, self.parameters["nonArousalQuery"])
-        entryNegativeQuery.grid(row=3, column=1, sticky=W)
+        #entryNegativeQuery.grid(row=3, column=1, sticky=W)
 
         entryNegativeGroupId = Entry(container)
         entryNegativeGroupId["width"] = int(entryWidth / 4.0)
         entryNegativeGroupId.insert(END, self.parameters["nonArousalGroupId"])
-        entryNegativeGroupId.grid(row=3, column=2, sticky=W)
+        #entryNegativeGroupId.grid(row=3, column=2, sticky=W)
+
+        buttonArousalPath = Button(container)
+        buttonArousalPath["command"] = setArousalPath
+        buttonArousalPath["width"] = buttonWidth
+        buttonArousalPath["text"]= "Select arousal images directory" 
+        buttonArousalPath.grid(row=2, column=0, sticky=W)
+
+        labelArousalPath = Label(container)
+        labelArousalPath["text"] = self.parameters["arousalPath"]
+        labelArousalPath.grid(row=2, column=1, columnspan=2, sticky=W)
+        
+        buttonNonArousalPath = Button(container)
+        buttonNonArousalPath["command"] = setNonArousalPath
+        buttonNonArousalPath["width"] = buttonWidth
+        buttonNonArousalPath["text"]= "Select non-arousal images directory" 
+        buttonNonArousalPath.grid(row=3, column=0, sticky=W)
+
+        labelNonArousalPath = Label(container)
+        labelNonArousalPath["text"] = self.parameters["nonArousalPath"]
+        labelNonArousalPath.grid(row=3, column=1, columnspan=2, sticky=W)
         
 
         labelRandomize = Label(container)
