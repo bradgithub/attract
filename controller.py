@@ -164,19 +164,19 @@ class Controller:
                     
                     if arousalPrediction[0] > 0.5:
                         if self.parameters["mode"] == SINGLE:
-                            log("Prediction: arousal")
+                            log("Prediction: arousal (" + str(arousalPrediction[0]) + ")")
                         
                         else:
-                            log("Prediction: right image")
+                            log("Prediction: right image (" + str(arousalPrediction[0]) + ")")
                         
                         self.sounds[1].play()
                         
                     else:
                         if self.parameters["mode"] == SINGLE:
-                            log("Prediction: non-arousal")
+                            log("Prediction: non-arousal (" + str(1.0 - arousalPrediction[0]) + ")")
                         
                         else:
-                            log("Prediction: left image")
+                            log("Prediction: left image (" + str(1.0 - arousalPrediction[0]) + ")")
 
                         self.sounds[0].play()
         

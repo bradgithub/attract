@@ -68,6 +68,41 @@ class Classifier:
             
             return [ featureSetA, featureSetB ]
     
+        def getDualModeFeatures(xyPoints):
+            xyPointsL = []
+            xyPointsR = []
+            for x, y in xyPoints:
+                if x < halfScreenWidth:
+                    xyPointsL.append(( x, y ))
+                else:
+                    xyPointsR.append(( x, y ))
+                    
+            leftPointsCount = len(xyPointsL)
+            rightPointsCount = len(xyPointsR)
+                        
+            featuresL = getSingleModeFeatures(xyPointsL)
+            featuresR = getSingleModeFeatures(xyPointsR)
+            
+            features = []
+            if useGazeFractionFeature:
+                features.append(leftPointsCount / float(leftPointsCount + rightPointsCount))
+            i = 0
+            while i < len(featuresL):
+                features.append(featuresL[i] - featuresR[i])
+                i = i + 1
+            featureSetA = features
+            
+            features = []
+            if useGazeFractionFeature:
+                features.append(rightPointsCount / float(leftPointsCount + rightPointsCount))
+            i = 0
+            while i < len(featuresL):
+                features.append(featuresR[i] - featuresL[i])
+                i = i + 1
+            featureSetB = features
+            
+            return [ featureSetA, featureSetB ]
+    
         def getPixel(value, extent):
             intValue = None
             try:
@@ -152,6 +187,7 @@ class Classifier:
                     i = i + 1
                 
                 gbc = GradientBoostingClassifier()
+                #gbc = GradientBoostingClassifier(learning_rate=0.01, n_estimators=1000, subsample=0.7)
                 gbc.fit(trainX_, trainy_)
 
                 testX = []
@@ -241,6 +277,7 @@ class Classifier:
         log("Finalizing classifier")
         
         gbc = GradientBoostingClassifier()
+        #gbc = GradientBoostingClassifier(learning_rate=0.01, n_estimators=1000, subsample=0.7)
         gbc.fit(trainX, trainy)
 
         log("Classifier ready")
@@ -266,7 +303,7 @@ class Classifier:
             prediction = gbc.predict_proba([ features ])[0][1]
             predictionB = gbc.predict_proba([ featuresB ])[0][0]
             
-            log(str((prediction, predictionB)))
+            #log(str((prediction, predictionB)))
             
             return prediction
         

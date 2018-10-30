@@ -65,11 +65,12 @@ class DisplayTrial:
                     if not (arousalPrediction[0] is None):
                         arousalPredictionImage.fill((0, 255, 0))
                         
-                        score = str(int(abs(arousalPrediction[0] - 0.5) / 0.5 * 1000) / 10.0)
-                        score = score[0:4] + "%"
-                        renderedScore = font.render(score, 0, fontColor)
-                        wordWidth, wordHeight = renderedScore.get_size()
-                        arousalPredictionImage.blit(renderedScore, ( int((halfScreenWidth - wordWidth) / 2.0), int((screenHeight / 12.0 - wordHeight) / 2.0) ))
+                        if False:
+                            score = str(int(abs(arousalPrediction[0] - 0.5) / 0.5 * 1000) / 10.0)
+                            score = score[0:4] + "%"
+                            renderedScore = font.render(score, 0, fontColor)
+                            wordWidth, wordHeight = renderedScore.get_size()
+                            arousalPredictionImage.blit(renderedScore, ( int((halfScreenWidth - wordWidth) / 2.0), int((screenHeight / 12.0 - wordHeight) / 2.0) ))
         
                         if arousalPrediction[0] > 0.5:
                             combinedImage.blit(arousalPredictionImage, (halfScreenWidth, 0))

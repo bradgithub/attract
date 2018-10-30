@@ -99,7 +99,7 @@ class SampleHandler:
         def getFakeSample():
             x, y = np.random.normal() * 0.1 + 0.25, np.random.normal() * 0.1 + 0.5
             
-            if np.random.random() < 0.55:
+            if np.random.random() < 0.5:
                 x = x + 0.5
             
             sample_ = {
