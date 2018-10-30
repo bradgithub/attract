@@ -83,6 +83,12 @@ class SampleHandler:
                 gazePoint[0] = None
                 readyToRecord[0] = False
        
+        def pauseLogging():
+            with lock:
+                xySmoothingWindow.clear()
+                gazePoint[0] = None
+                readyToRecord[0] = False
+       
         def startLogging():
             with lock:
                 records.clear()
@@ -91,11 +97,10 @@ class SampleHandler:
                 readyToRecord[0] = True
 
         def getFakeSample():
-            if np.random.random() < 0.33:
-                x, y = np.random.random() / 2.0, np.random.random()
-                
-            else:
-                x, y = 0.5 + (np.random.normal() * 0.1 + 0.5) / 2.0, np.random.normal() * 0.1 + 0.5
+            x, y = np.random.normal() * 0.1 + 0.25, np.random.normal() * 0.1 + 0.5
+            
+            if np.random.random() < 0.55:
+                x = x + 0.5
             
             sample_ = {
                 "LPOGV": "1",
@@ -115,5 +120,6 @@ class SampleHandler:
         self.saveRecords = saveRecords
         self.getData = getData
         self.stopLogging = stopLogging
+        self.pauseLogging = pauseLogging
         self.startLogging = startLogging
         self.getFakeSample = getFakeSample

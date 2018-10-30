@@ -121,6 +121,7 @@ class Display:
         self.mainloop = mainloop
         self.setImage = displayTrial.setImage
         self.setGazePoint = displayTrial.setGazePoint
+        self.setArousalPrediction = displayTrial.setArousalPrediction
         self.setUpdateTrial = setUpdateTrial
         self.setStartLogging = setStartLogging
         self.setStopLogging = setStopLogging

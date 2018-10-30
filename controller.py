@@ -30,6 +30,8 @@ class Controller:
         handleRecordsSemaphore = Semaphore(0)
         handleRecordsDeque = deque()
         
+        arousalPrediction = [ None ]
+        
         def getParameters():
             root = Tk()
             root.title("Arousal Predictor")
@@ -156,9 +158,11 @@ class Controller:
                 
                 with handleRecordsLock:
                     records, classId = handleRecordsDeque.popleft()
-            
+                    
                 if not (self.classifier is None):
-                    if self.classifier.classify(records) == 1:
+                    arousalPrediction[0] = self.classifier.classify(records)
+                    
+                    if arousalPrediction[0] > 0.5:
                         if self.parameters["mode"] == SINGLE:
                             log("Prediction: arousal")
                         
@@ -187,12 +191,14 @@ class Controller:
                 
                 handleRecordsSemaphore.release()
                 
-                #self.imageUpdateNeeded = True
-                self.samplerHandler.stopLogging()
+                self.samplerHandler.pauseLogging()
                 
             display.setGazePoint(gazePoint)
+            display.setArousalPrediction(arousalPrediction[0])
             
             if self.imageUpdateNeeded:
+                arousalPrediction[0] = None
+                
                 self.classId = np.random.choice([ 0, 1 ])
                 
                 if self.parameters["mode"] == SINGLE:

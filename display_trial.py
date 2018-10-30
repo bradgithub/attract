@@ -18,8 +18,15 @@ class DisplayTrial:
         highlightImage = pygame.Surface((halfScreenWidth, screenHeight))
         highlightImage.fill((255, 255, 255))
 
+        arousalPredictionImage = pygame.Surface((halfScreenWidth, screenHeight))
+
         imageData = [ None ]
         gazePoint = [ None ]
+        arousalPrediction = [ None ]
+
+        fontSize = 40
+        fontColor = (255, 255, 255)
+        font = pygame.font.Font("NotoSansMono-Bold.ttf", fontSize)
 
         def setImage(imageA,
                      imageB=None):
@@ -34,6 +41,9 @@ class DisplayTrial:
         
         def setGazePoint(xy):
             gazePoint[0] = xy
+        
+        def setArousalPrediction(arousalPrediction_):
+            arousalPrediction[0] = arousalPrediction_
         
         def render():
             if not (imageData[0] is None):
@@ -51,6 +61,21 @@ class DisplayTrial:
                         
                         else:
                             combinedImage.blit(highlightImage, (halfScreenWidth, 0))
+                            
+                    if not (arousalPrediction[0] is None):
+                        arousalPredictionImage.fill((0, 255, 0))
+                        
+                        score = str(int(abs(arousalPrediction[0] - 0.5) / 0.5 * 1000) / 10.0)
+                        score = score[0:4] + "%"
+                        renderedScore = font.render(score, 0, fontColor)
+                        wordWidth, wordHeight = renderedScore.get_size()
+                        arousalPredictionImage.blit(renderedScore, ( int((halfScreenWidth - wordWidth) / 2.0), int((screenHeight / 12.0 - wordHeight) / 2.0) ))
+        
+                        if arousalPrediction[0] > 0.5:
+                            combinedImage.blit(arousalPredictionImage, (halfScreenWidth, 0))
+                        
+                        else:
+                            combinedImage.blit(arousalPredictionImage, (0, 0))
                             
                     imageX = int(float(screenWidth * 4.0 / 12.0 - imageData[0][0].get_width()) / 2.0)
                     imageY = int(float(screenHeight * 10.0 / 12.0 - imageData[0][0].get_height()) / 2.0)
@@ -84,4 +109,5 @@ class DisplayTrial:
                 
         self.setImage = setImage
         self.setGazePoint = setGazePoint
+        self.setArousalPrediction = setArousalPrediction
         self.render = render
