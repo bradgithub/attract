@@ -72,7 +72,7 @@ class LocalImageLoader:
 
         def loadImageFilename(filename):
             try:
-                with open(filename, "r") as f:
+                with open(filename, "rb") as f:
                     image = f.read()
                     image = io.BytesIO(image)
                     return pygame.image.load(image)
