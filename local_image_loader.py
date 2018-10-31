@@ -100,7 +100,7 @@ class LocalImageLoader:
                 if not (image is None):
                     log("Retrieved class " + str(imageToLoad[1]) + " image filename " + filename)
                     with lock:
-                        images[imageToLoad[1]].append(image)
+                        images[imageToLoad[1]].append([ image, False ])
 
         loaderThread = Thread(target=loader,
                               name="Image loader thread",
@@ -124,8 +124,8 @@ class LocalImageLoader:
                             break
                     lastImageChoices[classId] = imageId
                     if not (imageId is None):
-                        image = _images[imageId]
-                        if not (width == image.get_width()) or not (height == image.get_height()):
+                        image, resized = _images[imageId]
+                        if not resized:
                             imageAspect = float(image.get_width()) / float(image.get_height())
                             newWidth = imageAspect * height
                             newHeight = width / imageAspect
@@ -134,7 +134,7 @@ class LocalImageLoader:
                             elif newHeight > height:
                                 newHeight = height
                             image = pygame.transform.smoothscale(image, (int(newWidth), int(newHeight)))
-                            _images[imageId] = image
+                            _images[imageId] = [ image, True ]
                             
                 except Exception:
                     image = None
