@@ -119,8 +119,6 @@ class SetupPanel():
             except Exception:
                 self.parameters["requiredSamplesPerTrial"] = 600
                 
-            print(self.parameters)
-
         def saveParameters():
             with open("parameters.cfg", "wb") as parametersFile:
                 lines = []

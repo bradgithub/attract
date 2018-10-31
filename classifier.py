@@ -288,20 +288,20 @@ class Classifier:
             
             for record in records:
                 xyPoints.append(( record[0] * screenWidth, record[1] * screenHeight ))
-                xyPointsB.append(( (1.0 - record[0]) * screenWidth, record[1] * screenHeight ))
+                #xyPointsB.append(( (1.0 - record[0]) * screenWidth, record[1] * screenHeight ))
                 
             features = None
             featuresB = None
             
             if useDualMode:
                 features = getDualModeFeatures(xyPoints)[0]
-                featuresB = getDualModeFeatures(xyPointsB)[0]
+                #featuresB = getDualModeFeatures(xyPointsB)[0]
                 
             else:
                 features = getSingleModeFeatures(xyPoints)
             
             prediction = gbc.predict_proba([ features ])[0][1]
-            predictionB = gbc.predict_proba([ featuresB ])[0][0]
+            #predictionB = gbc.predict_proba([ featuresB ])[0][0]
             
             #log(str((prediction, predictionB)))
             
